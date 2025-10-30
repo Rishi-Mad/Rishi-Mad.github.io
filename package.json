@@ -14,8 +14,8 @@
     "@monicon/react": "^1.2.2",
     "@monicon/vite": "^1.2.2",
     "@tailwindcss/vite": "^4.1.16",
+    "cmdk": "^1.1.1",
     "react": "^19.1.1",
-    "react-cmdk": "^1.3.9",
     "react-dom": "^19.1.1",
     "tailwindcss": "^4.1.16"
   },

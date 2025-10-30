@@ -48,6 +48,8 @@ export default function Window({
             setPosition({ x: preMaximizeState.x, y: preMaximizeState.y });
             setSize({ width: preMaximizeState.width, height: preMaximizeState.height });
             setIsMaximized(false);
+            // Notify dock to fade in
+            window.dispatchEvent(new CustomEvent('windowMaximized', { detail: { isMaximized: false } }));
         } else {
             // Save current state
             setPreMaximizeState({ x: position.x, y: position.y, width: size.width, height: size.height });
@@ -59,6 +61,8 @@ export default function Window({
                 height: window.innerHeight - (margin * 2) 
             });
             setIsMaximized(true);
+            // Notify dock to fade out
+            window.dispatchEvent(new CustomEvent('windowMaximized', { detail: { isMaximized: true } }));
         }
         onMaximize?.();
     };
@@ -185,9 +189,7 @@ export default function Window({
             ref={windowRef}
             onClick={onFocus}
             data-maximized={isMaximized}
-            className={`fixed flex flex-col backdrop-blur-xl bg-gradient-to-br from-bg-1/95 via-bg-1/90 to-bg-1/85 shadow-[0_20px_60px_0_rgba(0,0,0,0.5)] ${
-                isMaximized ? 'rounded-none' : 'rounded-2xl'
-            } ${isActive ? 'border-2 border-blue z-40' : 'border border-white/10 z-30'} ${className}`}
+            className={`fixed flex flex-col backdrop-blur-xl bg-gradient-to-br from-bg-1/95 via-bg-1/90 to-bg-1/85 shadow-[0_20px_60px_0_rgba(0,0,0,0.5)] rounded-2xl ${isActive ? 'border-2 border-blue z-40' : 'border border-white/10 z-30'} ${className}`}
             style={{
                 left: `${position.x}px`,
                 top: `${position.y}px`,
@@ -280,9 +282,9 @@ export default function Window({
             </div>
 
             {/* Window Content with ScrollArea */}
-            <ScrollArea.Root className="flex-1">
-                <ScrollArea.Viewport className="h-full overscroll-contain">
-                    <div className="p-6">{children}</div>
+            <ScrollArea.Root className="flex-1 flex flex-col min-h-0">
+                <ScrollArea.Viewport className="flex-1 overscroll-contain relative">
+                    <div className="absolute inset-0 p-6 flex flex-col">{children}</div>
                 </ScrollArea.Viewport>
                 <ScrollArea.Scrollbar className="m-2 flex w-1 justify-center rounded bg-white/10 opacity-0 transition-opacity delay-300 pointer-events-none data-[hovering]:opacity-100 data-[hovering]:delay-0 data-[hovering]:duration-75 data-[hovering]:pointer-events-auto data-[scrolling]:opacity-100 data-[scrolling]:delay-0 data-[scrolling]:duration-75 data-[scrolling]:pointer-events-auto">
                     <ScrollArea.Thumb className="w-full rounded bg-foreground/50" />
