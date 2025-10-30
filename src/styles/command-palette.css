@@ -1,0 +1,92 @@
+/* Keep cmdk's built-in overlay and modal */
+
+/* Smooth transitions for opening/closing */
+[cmdk-overlay] {
+    transition: opacity 200ms ease-out;
+}
+
+[cmdk-dialog] {
+    transition: transform 200ms ease-out, opacity 200ms ease-out;
+}
+
+/* Subtle scrollbar - match dialog background */
+[cmdk-list] {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) rgb(31, 41, 55) !important;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Match scrollbar background to dialog background */
+[cmdk-list]::-webkit-scrollbar {
+    width: 6px !important;
+    height: 0px !important;
+    background: rgb(31, 41, 55) !important;
+    background-color: rgb(31, 41, 55) !important;
+}
+
+[cmdk-list]::-webkit-scrollbar-track {
+    background: rgb(31, 41, 55) !important;
+    background-color: rgb(31, 41, 55) !important;
+}
+
+[cmdk-list]::-webkit-scrollbar-track-piece {
+    background: rgb(31, 41, 55) !important;
+    background-color: rgb(31, 41, 55) !important;
+}
+
+[cmdk-list]::-webkit-scrollbar-button {
+    display: none !important;
+    height: 0 !important;
+    width: 0 !important;
+}
+
+[cmdk-list]::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2) !important;
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    border-radius: 3px !important;
+    border: none !important;
+}
+
+[cmdk-list]::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3) !important;
+    background-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+[cmdk-list]::-webkit-scrollbar-corner {
+    background: rgb(31, 41, 55) !important;
+    background-color: rgb(31, 41, 55) !important;
+}
+
+/* Also target any potential container */
+[cmdk-dialog] *::-webkit-scrollbar {
+    width: 6px !important;
+    background: rgb(31, 41, 55) !important;
+    background-color: rgb(31, 41, 55) !important;
+}
+
+[cmdk-dialog] *::-webkit-scrollbar-track {
+    background: rgb(31, 41, 55) !important;
+    background-color: rgb(31, 41, 55) !important;
+}
+
+[cmdk-dialog] *::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2) !important;
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    border-radius: 3px !important;
+}
+
+/* Add horizontal and vertical spacing between items */
+[cmdk-item] {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    border-radius: 0.375rem;
+}
+
+[cmdk-group-heading] {
+    padding-left: 1rem;
+}

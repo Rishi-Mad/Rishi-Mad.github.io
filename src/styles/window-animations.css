@@ -1,0 +1,27 @@
+@keyframes genie-minimize {
+    0% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(0.8, 1.2) translateY(10%);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(0.1, 0.1) translateY(100vh) translateX(-50vw);
+        opacity: 0;
+    }
+}
+
+/* Status bar fade when window is maximized */
+body:has([data-maximized="true"]) .status-bar-header {
+    opacity: 0;
+    transform: translateY(-100%);
+    pointer-events: none;
+}
+
+body:has([data-maximized="true"]) .status-bar-header:hover {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}

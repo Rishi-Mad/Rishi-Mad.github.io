@@ -1,117 +1,293 @@
-import React, { useRef, useEffect, RefObject } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
-import { TabBar } from './TabBar';
-import Draggable from 'react-draggable';
-
-interface TabData {
-    id: string;
-    title: string;
-    content: React.ReactNode;
-}
+import * as React from 'react';
+import { ScrollArea } from '@base-ui-components/react/scroll-area';
+import Monicon from '@monicon/react';
+import AspectRatioMinimize from './icons/aspect-ratio-fill-minimize';
+import '../styles/window-animations.css';
 
 interface WindowProps {
-    isMaximized: boolean;
+    title: string;
+    children: React.ReactNode;
     onClose: () => void;
-    onMinimize: () => void;
-    onMaximize: () => void;
-    tabs: Record<string, TabData>;
-    activeTabId: string | null;
-    onSelectTab: (id: string) => void;
-    onCloseTab: (id: string) => void;
+    onMinimize?: () => void;
+    onMaximize?: () => void;
+    className?: string;
+    isActive?: boolean;
+    onFocus?: () => void;
+    isMinimized?: boolean;
 }
 
-export const Window: React.FC<WindowProps> = ({ isMaximized, onClose, onMinimize, onMaximize, tabs, activeTabId, onSelectTab, onCloseTab }) => {
-    const variants = {
-        hidden: { opacity: 0, scale: 0.8, y: 40 },
-        visible: { opacity: 1, scale: 1, y: 0, transition: { type: "spring" as const, stiffness: 300, damping: 25 } },
-        exit: { opacity: 0, scale: 0.8, y: -40, transition: { duration: 0.3 } }
+export default function Window({
+    title,
+    children,
+    onClose,
+    onMinimize,
+    onMaximize,
+    className = '',
+    isActive = false,
+    onFocus,
+    isMinimized = false,
+}: WindowProps) {
+    const [position, setPosition] = React.useState({ x: 32, y: 80 });
+    const [size, setSize] = React.useState({ width: 800, height: 600 });
+    const [isMaximized, setIsMaximized] = React.useState(false);
+    const [preMaximizeState, setPreMaximizeState] = React.useState({ x: 32, y: 80, width: 800, height: 600 });
+    const windowRef = React.useRef<HTMLDivElement>(null);
+
+    // Use refs to track drag state without causing re-renders
+    const isDraggingRef = React.useRef(false);
+    const isResizingRef = React.useRef(false);
+    const resizeDirectionRef = React.useRef('');
+    const dragOffsetRef = React.useRef({ x: 0, y: 0 });
+    const initialSizeRef = React.useRef({ width: 0, height: 0 });
+    const initialPositionRef = React.useRef({ x: 0, y: 0 });
+    const dragStartPosRef = React.useRef({ x: 0, y: 0 });
+
+    const handleMaximize = () => {
+        if (isMaximized) {
+            // Restore to previous state
+            setPosition({ x: preMaximizeState.x, y: preMaximizeState.y });
+            setSize({ width: preMaximizeState.width, height: preMaximizeState.height });
+            setIsMaximized(false);
+        } else {
+            // Save current state
+            setPreMaximizeState({ x: position.x, y: position.y, width: size.width, height: size.height });
+            // Maximize with margins (8px on all sides)
+            const margin = 8;
+            setPosition({ x: margin, y: margin });
+            setSize({ 
+                width: window.innerWidth - (margin * 2), 
+                height: window.innerHeight - (margin * 2) 
+            });
+            setIsMaximized(true);
+        }
+        onMaximize?.();
     };
 
-    const activeTabData = activeTabId ? tabs[activeTabId] : null;
-    const currentTitle = activeTabData ? activeTabData.title : 'Portfolio';
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
-
-    // Ref for centering window
-    const windowRef = useRef<HTMLDivElement>(null);
-    useEffect(() => {
-        if (!isMobile && windowRef.current) {
-            // Center window only on open/maximize, not on tab changes
-            const el = windowRef.current;
-            const parent = el.parentElement as HTMLElement | null;
-            if (parent) {
-                el.style.left = `${(parent.offsetWidth - el.offsetWidth) / 2}px`;
-                el.style.top = `${(parent.offsetHeight - el.offsetHeight) / 2}px`;
-            }
+    const handleMinimize = () => {
+        if (windowRef.current) {
+            // Add genie effect animation
+            windowRef.current.style.animation = 'genie-minimize 0.5s ease-in-out forwards';
+            setTimeout(() => {
+                onMinimize?.();
+            }, 500);
+        } else {
+            onMinimize?.();
         }
-    }, [isMobile, isMaximized]); // Removed activeTabId dependency
+    };
 
-    // Desktop/Tablet window content
-    const windowContent = (
-        <motion.div
-            ref={windowRef}
-            variants={variants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className={`flex flex-col glass-dark rounded-2xl shadow-2xl border border-blue-500/20 w-full max-w-5xl h-5/6 max-h-[900px] neon-glow`}
-            role="dialog"
-            aria-label={currentTitle}
-        >
-            <div className={`flex items-center justify-between p-4 glass-light rounded-t-2xl border-b border-gray-700/20 flex-shrink-0 cursor-move ${isMobile ? 'gap-2' : ''}`} id="window-drag-handle">
-                <div className="flex items-center space-x-2">
-                    <motion.button onClick={onClose} className={`rounded-full bg-red-500 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-red-400 ${isMobile ? 'w-6 h-6' : 'w-3.5 h-3.5'}`} whileHover={{ scale: 1.1 }} aria-label="Close window"><X className={isMobile ? 'w-4 h-4' : 'w-2 h-2 text-black/50'} /></motion.button>
-                    <motion.button onClick={onMinimize} className={`rounded-full bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 ${isMobile ? 'w-6 h-6' : 'w-3.5 h-3.5'}`} whileHover={{ scale: 1.1 }} aria-label="Minimize window"/>
-                    <motion.button onClick={onMaximize} className={`rounded-full bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-400 ${isMobile ? 'w-6 h-6' : 'w-3.5 h-3.5'}`} whileHover={{ scale: 1.1 }} aria-label="Maximize window"/>
-                </div>
-                <span className="font-semibold text-sm text-white truncate px-4">{currentTitle}</span>
-                <div className="w-20"></div>
-            </div>
-            <TabBar tabs={tabs} activeTabId={activeTabId} onSelectTab={onSelectTab} onCloseTab={onCloseTab} />
-            <div className={`flex-grow overflow-y-auto text-gray-200 scrollbar-thin scrollbar-thumb-purple-500 scrollbar-track-gray-800 ${isMobile ? 'p-2' : 'p-6'}`}>
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        key={activeTabId}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        transition={{ 
-                            type: "spring",
-                            stiffness: 300,
-                            damping: 30,
-                            duration: 0.3
-                        }}
-                        className="min-h-[400px]"
-                    >
-                        {activeTabData ? (
-                            <div className="min-h-[400px]">
-                                {activeTabData.content}
-                            </div>
-                        ) : (
-                            <div className="text-center text-gray-400 min-h-[400px] flex items-center justify-center">
-                                <div>
-                                    <div className="text-2xl font-bold mb-2">Welcome to My Portfolio</div>
-                                    <div className="text-sm">Select an application to begin exploring</div>
-                                </div>
-                            </div>
-                        )}
-                    </motion.div>
-                </AnimatePresence>
-            </div>
-        </motion.div>
-    );
+    const handleMouseDown = (e: React.MouseEvent, type: 'drag' | 'resize', direction?: string) => {
+        e.preventDefault();
+        e.stopPropagation();
 
-    if (isMobile) {
-        // On mobile, always maximized and not draggable
-        return windowContent;
+        if (windowRef.current) {
+            // Disable transitions during drag/resize for instant feedback
+            windowRef.current.style.transition = 'none';
+        }
+
+        if (type === 'drag') {
+            isDraggingRef.current = true;
+            // Store the offset between mouse and window position
+            dragOffsetRef.current = {
+                x: e.clientX - position.x,
+                y: e.clientY - position.y
+            };
+        } else if (type === 'resize' && direction) {
+            isResizingRef.current = true;
+            resizeDirectionRef.current = direction;
+            dragStartPosRef.current = { x: e.clientX, y: e.clientY };
+            initialSizeRef.current = { ...size };
+            initialPositionRef.current = { ...position };
+        }
+    };
+
+    React.useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            if (isDraggingRef.current && windowRef.current) {
+                // Calculate new position directly from mouse position
+                const newX = e.clientX - dragOffsetRef.current.x;
+                const newY = e.clientY - dragOffsetRef.current.y;
+
+                // Apply directly to DOM synchronously for instant feedback
+                windowRef.current.style.left = `${newX}px`;
+                windowRef.current.style.top = `${newY}px`;
+            } else if (isResizingRef.current && windowRef.current) {
+                const deltaX = e.clientX - dragStartPosRef.current.x;
+                const deltaY = e.clientY - dragStartPosRef.current.y;
+
+                let newWidth = initialSizeRef.current.width;
+                let newHeight = initialSizeRef.current.height;
+                let newX = initialPositionRef.current.x;
+                let newY = initialPositionRef.current.y;
+
+                if (resizeDirectionRef.current.includes('e')) {
+                    newWidth = Math.max(400, initialSizeRef.current.width + deltaX);
+                }
+                if (resizeDirectionRef.current.includes('w')) {
+                    const widthDelta = Math.min(deltaX, initialSizeRef.current.width - 400);
+                    newWidth = Math.max(400, initialSizeRef.current.width - widthDelta);
+                    newX = initialPositionRef.current.x + widthDelta;
+                }
+                if (resizeDirectionRef.current.includes('s')) {
+                    newHeight = Math.max(300, initialSizeRef.current.height + deltaY);
+                }
+                if (resizeDirectionRef.current.includes('n')) {
+                    const heightDelta = Math.min(deltaY, initialSizeRef.current.height - 300);
+                    newHeight = Math.max(300, initialSizeRef.current.height - heightDelta);
+                    newY = initialPositionRef.current.y + heightDelta;
+                }
+
+                windowRef.current.style.width = `${newWidth}px`;
+                windowRef.current.style.height = `${newHeight}px`;
+                windowRef.current.style.left = `${newX}px`;
+                windowRef.current.style.top = `${newY}px`;
+            }
+        };
+
+        const handleMouseUp = (e: MouseEvent) => {
+            if (isDraggingRef.current && windowRef.current) {
+                // Re-enable transitions
+                windowRef.current.style.transition = '';
+
+                // Commit the final position to state
+                const newX = e.clientX - dragOffsetRef.current.x;
+                const newY = e.clientY - dragOffsetRef.current.y;
+                setPosition({ x: newX, y: newY });
+            } else if (isResizingRef.current && windowRef.current) {
+                // Re-enable transitions
+                windowRef.current.style.transition = '';
+
+                // Commit the final size and position to state
+                const rect = windowRef.current.getBoundingClientRect();
+                setSize({ width: rect.width, height: rect.height });
+                setPosition({ x: rect.left, y: rect.top });
+            }
+
+            isDraggingRef.current = false;
+            isResizingRef.current = false;
+            resizeDirectionRef.current = '';
+        };
+
+        document.addEventListener('mousemove', handleMouseMove, { passive: true });
+        document.addEventListener('mouseup', handleMouseUp);
+
+        return () => {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [position, size]);
+
+    if (isMinimized) {
+        return null;
     }
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center z-30 pointer-events-none">
-            <div className="pointer-events-auto">
-                {windowContent}
+        <div
+            ref={windowRef}
+            onClick={onFocus}
+            data-maximized={isMaximized}
+            className={`fixed flex flex-col backdrop-blur-xl bg-gradient-to-br from-bg-1/95 via-bg-1/90 to-bg-1/85 shadow-[0_20px_60px_0_rgba(0,0,0,0.5)] ${
+                isMaximized ? 'rounded-none' : 'rounded-2xl'
+            } ${isActive ? 'border-2 border-blue z-40' : 'border border-white/10 z-30'} ${className}`}
+            style={{
+                left: `${position.x}px`,
+                top: `${position.y}px`,
+                width: `${size.width}px`,
+                height: `${size.height}px`,
+                willChange: 'transform',
+                transition: isMaximized
+                    ? 'all 300ms ease-in-out'
+                    : 'border-color 200ms, border-width 200ms, z-index 200ms',
+            }}
+        >
+            {/* Resize Handles - Edges (excluding top) */}
+            <div
+                className="absolute bottom-0 left-0 right-0 h-2 cursor-s-resize z-50"
+                onMouseDown={(e) => handleMouseDown(e, 'resize', 's')}
+            />
+            <div
+                className="absolute top-0 bottom-0 left-0 w-2 cursor-w-resize z-50"
+                onMouseDown={(e) => handleMouseDown(e, 'resize', 'w')}
+            />
+            <div
+                className="absolute top-0 bottom-0 right-0 w-2 cursor-e-resize z-50"
+                onMouseDown={(e) => handleMouseDown(e, 'resize', 'e')}
+            />
+
+            {/* Resize Handles - Corners */}
+            <div
+                className="absolute bottom-0 left-0 w-4 h-4 cursor-sw-resize z-50"
+                onMouseDown={(e) => handleMouseDown(e, 'resize', 'sw')}
+            />
+            <div
+                className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-50"
+                onMouseDown={(e) => handleMouseDown(e, 'resize', 'se')}
+            />
+            <div
+                className="absolute top-0 left-0 w-4 h-4 cursor-nw-resize z-50"
+                onMouseDown={(e) => handleMouseDown(e, 'resize', 'nw')}
+            />
+            <div
+                className="absolute top-0 right-0 w-4 h-4 cursor-ne-resize z-50"
+                onMouseDown={(e) => handleMouseDown(e, 'resize', 'ne')}
+            />
+
+            {/* Window Header */}
+            <div
+                className="flex items-center justify-between px-4 py-2 border-b border-white/10 cursor-move"
+                onMouseDown={(e) => handleMouseDown(e, 'drag')}
+            >
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={onClose}
+                        className="w-3 h-3 rounded-full bg-bg-3 hover:bg-red transition-colors flex items-center justify-center group"
+                        aria-label="Close"
+                    >
+                        <span className="text-gray-2 group-hover:text-white transition-colors">
+                            <Monicon name="mingcute:close-fill" size={8} />
+                        </span>
+                    </button>
+                    {onMinimize && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleMinimize();
+                            }}
+                            className="w-3 h-3 rounded-full bg-bg-3 hover:bg-yellow transition-colors flex items-center justify-center group"
+                            aria-label="Minimize"
+                        >
+                            <span className="text-gray-2 group-hover:text-white transition-colors">
+                                <Monicon name="mingcute:minimize-fill" size={8} />
+                            </span>
+                        </button>
+                    )}
+                    {onMaximize && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleMaximize();
+                            }}
+                            className="w-3 h-3 rounded-full bg-bg-3 hover:bg-green transition-colors flex items-center justify-center group"
+                            aria-label="Maximize"
+                        >
+                            <span className="text-gray-2 group-hover:text-white transition-colors text-[8px]">
+                                {isMaximized ? <AspectRatioMinimize /> : <Monicon name="mingcute:aspect-ratio-fill" size={8} />}
+                            </span>
+                        </button>
+                    )}
+                </div>
+                <h2 className="text-sm font-medium text-foreground">{title}</h2>
+                <div className="w-16" />
             </div>
+
+            {/* Window Content with ScrollArea */}
+            <ScrollArea.Root className="flex-1">
+                <ScrollArea.Viewport className="h-full overscroll-contain">
+                    <div className="p-6">{children}</div>
+                </ScrollArea.Viewport>
+                <ScrollArea.Scrollbar className="m-2 flex w-1 justify-center rounded bg-white/10 opacity-0 transition-opacity delay-300 pointer-events-none data-[hovering]:opacity-100 data-[hovering]:delay-0 data-[hovering]:duration-75 data-[hovering]:pointer-events-auto data-[scrolling]:opacity-100 data-[scrolling]:delay-0 data-[scrolling]:duration-75 data-[scrolling]:pointer-events-auto">
+                    <ScrollArea.Thumb className="w-full rounded bg-foreground/50" />
+                </ScrollArea.Scrollbar>
+            </ScrollArea.Root>
         </div>
     );
-};
+}
