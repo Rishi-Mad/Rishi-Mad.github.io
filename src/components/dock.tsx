@@ -9,6 +9,7 @@ import Keyboard from './keyboard';
 import ProfileApp from '../apps/profile';
 import TerminalApp from '../apps/terminal';
 import SettingsApp from '../apps/settings';
+import ProjectsApp from '../apps/projects';
 
 type AppWindow = {
     id: string;
@@ -91,6 +92,7 @@ export default function Dock({ onWindowsChange, onOpenRofiLauncher }: DockProps 
             const { id, title } = customEvent.detail;
             if (id === 'profile') openWindow(id, title, <ProfileApp />);
             else if (id === 'terminal') openWindow(id, title, <TerminalApp />);
+            else if (id === 'projects') openWindow(id, title, <ProjectsApp />);
             else if (id === 'settings') openWindow(id, title, <SettingsApp />);
         };
 
@@ -150,6 +152,17 @@ export default function Dock({ onWindowsChange, onOpenRofiLauncher }: DockProps 
                                 className="relative w-10 h-10 rounded-xl flex items-center justify-center hover:scale-110 transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-primary data-[popup-open]:scale-110 bg-gradient-to-br from-green to-aqua shadow-md"
                             >
                                 <Monicon name="mingcute:terminal-box-fill" size={28} color="white" />
+                            </Menu.Trigger>
+                        </Menu.Root>
+                    </AppTooltip>
+
+                    <AppTooltip content="Projects" side="right">
+                        <Menu.Root>
+                            <Menu.Trigger
+                                onClick={() => openWindow('projects', 'Projects', <ProjectsApp />)}
+                                className="relative w-10 h-10 rounded-xl flex items-center justify-center hover:scale-110 transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-primary data-[popup-open]:scale-110 bg-gradient-to-br from-yellow to-orange shadow-md"
+                            >
+                                <Monicon name="mingcute:album-2-fill" size={28} color="white" />
                             </Menu.Trigger>
                         </Menu.Root>
                     </AppTooltip>

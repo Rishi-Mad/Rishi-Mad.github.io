@@ -1,5 +1,3 @@
-import * as React from 'react';
-
 export default function ProjectsApp() {
     return (
         <div className="flex flex-col gap-6 h-full">
