@@ -12,15 +12,9 @@ interface StatusBarProps {
 const japaneseNumbers = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
 
 // Battery charging cycle: 45 minutes to 1 hour (let's use 52.5 minutes = 3150000ms)
+// Full cycle is charge (0-100%) then discharge (100-0%)
 const FULL_CHARGE_CYCLE_MS = 52.5 * 60 * 1000; // 52.5 minutes in milliseconds
-const BATTERY_STATES = [
-    { icon: 'mingcute:battery-1-line', threshold: 0, isCharging: true },      // 0-20%: Charging
-    { icon: 'mingcute:battery-1-line', threshold: 0.2, isCharging: false },   // 20-40%
-    { icon: 'mingcute:battery-2-line', threshold: 0.4, isCharging: false },   // 40-60%
-    { icon: 'mingcute:battery-3-line', threshold: 0.6, isCharging: false },   // 60-80%
-    { icon: 'mingcute:battery-4-line', threshold: 0.8, isCharging: false },   // 80-95%
-    { icon: 'mingcute:battery-fill', threshold: 0.95, isCharging: false },    // 95-100%
-];
+const HALF_CYCLE_MS = FULL_CHARGE_CYCLE_MS / 2; // 26.25 minutes for charge or discharge
 
 const getBatteryState = () => {
     const now = Date.now();
@@ -33,20 +27,34 @@ const getBatteryState = () => {
     }
     
     const elapsed = now - parseInt(startTime);
-    const cyclePosition = (elapsed % FULL_CHARGE_CYCLE_MS) / FULL_CHARGE_CYCLE_MS;
+    const cyclePosition = elapsed % FULL_CHARGE_CYCLE_MS;
     
-    // Find the appropriate battery icon based on cycle position
-    for (let i = BATTERY_STATES.length - 1; i >= 0; i--) {
-        if (cyclePosition >= BATTERY_STATES[i].threshold) {
-            return {
-                icon: BATTERY_STATES[i].icon,
-                percentage: Math.round(cyclePosition * 100),
-                isCharging: BATTERY_STATES[i].isCharging,
-            };
-        }
+    // First half: charging (0% -> 100%)
+    // Second half: discharging (100% -> 0%)
+    const isCharging = cyclePosition < HALF_CYCLE_MS;
+    const percentage = isCharging
+        ? Math.round((cyclePosition / HALF_CYCLE_MS) * 100)
+        : Math.round(((FULL_CHARGE_CYCLE_MS - cyclePosition) / HALF_CYCLE_MS) * 100);
+    
+    // Determine icon based on percentage
+    let icon = 'mingcute:battery-1-line';
+    if (percentage >= 95) {
+        icon = 'mingcute:battery-fill';
+    } else if (percentage >= 80) {
+        icon = 'mingcute:battery-4-line';
+    } else if (percentage >= 60) {
+        icon = 'mingcute:battery-3-line';
+    } else if (percentage >= 40) {
+        icon = 'mingcute:battery-2-line';
+    } else if (percentage >= 20) {
+        icon = 'mingcute:battery-1-line';
     }
     
-    return { icon: BATTERY_STATES[0].icon, percentage: 0, isCharging: true };
+    return {
+        icon,
+        percentage,
+        isCharging,
+    };
 };
 
 export default function StatusBar({ windows, activeWindowId, minimizedWindowIds, onWindowSelect }: StatusBarProps) {
@@ -63,9 +71,7 @@ export default function StatusBar({ windows, activeWindowId, minimizedWindowIds,
     React.useEffect(() => {
         const timer = setInterval(() => {
             setCurrentTime(new Date());
-            const newBatteryState = getBatteryState();
-            console.log('Battery:', newBatteryState.percentage + '%', 'Charging:', newBatteryState.isCharging);
-            setBatteryState(newBatteryState);
+            setBatteryState(getBatteryState());
         }, 1000);
         return () => clearInterval(timer);
     }, []);
