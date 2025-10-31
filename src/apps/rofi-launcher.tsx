@@ -7,7 +7,7 @@ interface RofiLauncherAppProps {
     onClose: () => void;
 }
 
-export default function RofiLauncherApp({ onOpenApp, onClose }: CommandPaletteAppProps) {
+export default function RofiLauncherApp({ onOpenApp, onClose }: RofiLauncherAppProps) {
     const [open, setOpen] = React.useState(true);
 
     const handleOpenChange = (isOpen: boolean) => {

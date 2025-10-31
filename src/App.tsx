@@ -1,7 +1,7 @@
 import * as React from 'react';
 import StatusBar from './components/status-bar';
 import Dock from './components/dock';
-import CommandPaletteApp from './apps/command-palette';
+import RofiLauncherApp from './apps/rofi-launcher';
 import sunsetWallpaper from './assets/sunset.png';
 import './styles/window-animations.css';
 
@@ -15,7 +15,7 @@ function App() {
   const [windows, setWindows] = React.useState<AppWindow[]>([]);
   const [activeWindowId, setActiveWindowId] = React.useState<string | null>(null);
   const [minimizedWindowIds, setMinimizedWindowIds] = React.useState<Set<string>>(new Set());
-  const [showCommandPalette, setShowCommandPalette] = React.useState(false);
+  const [showRofiLauncher, setShowRofiLauncher] = React.useState(false);
 
   const handleWindowsChange = React.useCallback(
     (newWindows: AppWindow[], newActiveId: string | null, minimizedIds: Set<string>) => {
@@ -33,15 +33,28 @@ function App() {
     window.dispatchEvent(event);
   }, []);
 
-  const handleOpenCommandPalette = React.useCallback(() => {
-    setShowCommandPalette(true);
+  const handleOpenRofiLauncher = React.useCallback(() => {
+    setShowRofiLauncher(true);
   }, []);
 
   const handleOpenApp = React.useCallback((id: string, title: string) => {
     // Trigger window open through dock
     const event = new CustomEvent('openWindowFromApp', { detail: { id, title } });
     window.dispatchEvent(event);
-    setShowCommandPalette(false);
+    setShowRofiLauncher(false);
+  }, []);
+
+  // Keyboard shortcut: Space + K
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Space' && e.key === 'k') {
+        e.preventDefault();
+        setShowRofiLauncher((prev) => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   return (
@@ -51,7 +64,7 @@ function App() {
     >
       <Dock
         onWindowsChange={handleWindowsChange}
-        onOpenCommandPalette={handleOpenCommandPalette}
+        onOpenRofiLauncher={handleOpenRofiLauncher}
       />
 
       <header className="fixed top-0 left-0 right-0 z-20 p-4 flex justify-center transition-all duration-300 status-bar-header">
@@ -65,11 +78,11 @@ function App() {
 
       <main className="pt-24 px-4"></main>
 
-      {/* Command Palette - Dialog handles its own portal and z-index */}
-      {showCommandPalette && (
-        <CommandPaletteApp
+      {/* Rofi Launcher - Dialog handles its own portal and z-index */}
+      {showRofiLauncher && (
+        <RofiLauncherApp
           onOpenApp={handleOpenApp}
-          onClose={() => setShowCommandPalette(false)}
+          onClose={() => setShowRofiLauncher(false)}
         />
       )}
     </div>

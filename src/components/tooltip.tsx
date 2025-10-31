@@ -3,7 +3,7 @@ import { Tooltip as BaseTooltip } from '@base-ui-components/react/tooltip';
 
 interface TooltipProps {
     children: React.ReactElement;
-    content: string;
+    content: React.ReactNode;
     sideOffset?: number;
     side?: 'top' | 'right' | 'bottom' | 'left';
 }
