@@ -1,6 +1,8 @@
+import Card from '../components/card';
+
 export default function ProfileApp() {
     return (
-        <div className="flex flex-col gap-6 h-full">
+        <div className="flex flex-col gap-6 h-full pb-12">
             <h1 className="text-3xl font-bold text-foreground">About Me</h1>
 
             {/* Introduction */}
@@ -9,7 +11,7 @@ export default function ProfileApp() {
                     <span className="w-1 h-6 bg-aqua rounded-full" />
                     Introduction
                 </h2>
-                <div className="p-4 rounded-xl bg-bg-2/50 border border-white/5">
+                <Card hoverColor="aqua">
                     <p className="text-base text-gray-1 leading-relaxed">
                         I'm <span className="text-foreground font-semibold">Rishi Madipalli</span>, a Computer Engineering 
                         student at <span className="text-blue">Purdue University</span>, passionate about blending hardware 
@@ -18,7 +20,7 @@ export default function ProfileApp() {
                         hardware behavior. Whether I'm designing an accelerator, tuning embedded logic, or developing full-stack 
                         applications, my goal is to make systems smarter, faster, and more reliable.
                     </p>
-                </div>
+                </Card>
             </section>
 
             {/* Internship Experience */}
@@ -28,7 +30,7 @@ export default function ProfileApp() {
                     Internship Experience
                 </h2>
 
-                <div className="p-4 rounded-xl bg-bg-2/50 border border-white/5 hover:border-green/30 transition-colors">
+                <Card hoverColor="green">
                     <div className="flex items-start justify-between mb-2">
                         <div>
                             <h4 className="text-lg font-semibold text-foreground">Software Engineering Intern (Full-Stack)</h4>
@@ -51,16 +53,16 @@ export default function ProfileApp() {
                         This internship deepened my understanding of software scalability and front-end architecture, and 
                         strengthened my appreciation for how design, performance, and engineering come together in production systems.
                     </p>
-                </div>
+                </Card>
             </section>
 
             {/* Interests & Passions */}
-            <section className="flex flex-col gap-4">
+            <section className="flex flex-col gap-4 pb-6">
                 <h2 className="text-xl font-semibold text-yellow flex items-center gap-2">
                     <span className="w-1 h-6 bg-yellow rounded-full" />
                     Interests & Passions
                 </h2>
-                <div className="p-4 rounded-xl bg-bg-2/50 border border-white/5">
+                <Card hoverColor="yellow">
                     <p className="text-base text-gray-1 leading-relaxed mb-3">
                         My interests center around <span className="text-orange font-medium">ASIC and hardware design</span>, 
                         <span className="text-orange font-medium"> embedded systems</span>, and 
@@ -75,7 +77,7 @@ export default function ProfileApp() {
                         <span className="text-aqua font-medium"> smart system architectures</span> that redefine what's possible 
                         at the intersection of hardware and intelligence.
                     </p>
-                </div>
+                </Card>
             </section>
         </div>
     );

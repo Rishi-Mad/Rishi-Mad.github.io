@@ -14,7 +14,16 @@ interface WindowProps {
     isActive?: boolean;
     onFocus?: () => void;
     isMinimized?: boolean;
+    windowId?: string;
 }
+
+type WindowState = {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    isMaximized: boolean;
+};
 
 export default function Window({
     title,
@@ -26,11 +35,31 @@ export default function Window({
     isActive = false,
     onFocus,
     isMinimized = false,
+    windowId,
 }: WindowProps) {
-    const [position, setPosition] = React.useState({ x: 32, y: 80 });
-    const [size, setSize] = React.useState({ width: 800, height: 600 });
-    const [isMaximized, setIsMaximized] = React.useState(false);
-    const [preMaximizeState, setPreMaximizeState] = React.useState({ x: 32, y: 80, width: 800, height: 600 });
+    // Load saved state from localStorage or use defaults
+    const loadWindowState = React.useCallback((): WindowState => {
+        if (!windowId) {
+            return { x: 32, y: 80, width: 800, height: 600, isMaximized: false };
+        }
+        
+        try {
+            const saved = localStorage.getItem(`window-state-${windowId}`);
+            if (saved) {
+                return JSON.parse(saved);
+            }
+        } catch (e) {
+            console.error('Failed to load window state:', e);
+        }
+        
+        return { x: 32, y: 80, width: 800, height: 600, isMaximized: false };
+    }, [windowId]);
+
+    const initialState = loadWindowState();
+    const [position, setPosition] = React.useState({ x: initialState.x, y: initialState.y });
+    const [size, setSize] = React.useState({ width: initialState.width, height: initialState.height });
+    const [isMaximized, setIsMaximized] = React.useState(initialState.isMaximized);
+    const [preMaximizeState, setPreMaximizeState] = React.useState({ x: initialState.x, y: initialState.y, width: initialState.width, height: initialState.height });
     const windowRef = React.useRef<HTMLDivElement>(null);
 
     // Use refs to track drag state without causing re-renders
@@ -41,6 +70,40 @@ export default function Window({
     const initialSizeRef = React.useRef({ width: 0, height: 0 });
     const initialPositionRef = React.useRef({ x: 0, y: 0 });
     const dragStartPosRef = React.useRef({ x: 0, y: 0 });
+
+    // Save window state to localStorage
+    const saveWindowState = React.useCallback(() => {
+        if (!windowId) return;
+        
+        try {
+            const state: WindowState = {
+                x: position.x,
+                y: position.y,
+                width: size.width,
+                height: size.height,
+                isMaximized,
+            };
+            localStorage.setItem(`window-state-${windowId}`, JSON.stringify(state));
+        } catch (e) {
+            console.error('Failed to save window state:', e);
+        }
+    }, [windowId, position, size, isMaximized]);
+
+    // Save state when window closes
+    React.useEffect(() => {
+        return () => {
+            saveWindowState();
+        };
+    }, [saveWindowState]);
+
+    // Save state periodically when position/size changes
+    React.useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            saveWindowState();
+        }, 500);
+        
+        return () => clearTimeout(timeoutId);
+    }, [position, size, isMaximized, saveWindowState]);
 
     const handleMaximize = () => {
         if (isMaximized) {
@@ -106,10 +169,20 @@ export default function Window({
 
     React.useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
-            if (isDraggingRef.current && windowRef.current) {
+            if (isDraggingRef.current && windowRef.current && !isMaximized) {
                 // Calculate new position directly from mouse position
-                const newX = e.clientX - dragOffsetRef.current.x;
-                const newY = e.clientY - dragOffsetRef.current.y;
+                let newX = e.clientX - dragOffsetRef.current.x;
+                let newY = e.clientY - dragOffsetRef.current.y;
+
+                // Constrain to viewport boundaries (only when not maximized)
+                // Status bar is approximately 60px from top (16px padding + 28px height + 16px padding)
+                const minY = 60;
+                const minX = 0;
+                const maxX = window.innerWidth - 100; // Keep at least 100px visible
+                const maxY = window.innerHeight - 50; // Keep at least 50px visible
+
+                newX = Math.max(minX, Math.min(newX, maxX));
+                newY = Math.max(minY, Math.min(newY, maxY));
 
                 // Apply directly to DOM synchronously for instant feedback
                 windowRef.current.style.left = `${newX}px`;
@@ -152,9 +225,21 @@ export default function Window({
                 // Re-enable transitions
                 windowRef.current.style.transition = '';
 
-                // Commit the final position to state
-                const newX = e.clientX - dragOffsetRef.current.x;
-                const newY = e.clientY - dragOffsetRef.current.y;
+                // Commit the final position to state with constraints (only when not maximized)
+                let newX = e.clientX - dragOffsetRef.current.x;
+                let newY = e.clientY - dragOffsetRef.current.y;
+
+                if (!isMaximized) {
+                    // Apply same constraints as during drag
+                    const minY = 60;
+                    const minX = 0;
+                    const maxX = window.innerWidth - 100;
+                    const maxY = window.innerHeight - 50;
+
+                    newX = Math.max(minX, Math.min(newX, maxX));
+                    newY = Math.max(minY, Math.min(newY, maxY));
+                }
+
                 setPosition({ x: newX, y: newY });
             } else if (isResizingRef.current && windowRef.current) {
                 // Re-enable transitions

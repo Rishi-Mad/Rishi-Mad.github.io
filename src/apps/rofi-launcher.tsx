@@ -35,6 +35,9 @@ export default function RofiLauncherApp({ onOpenApp, onClose }: RofiLauncherAppP
                     <Command.Item onSelect={() => handleSelect(() => onOpenApp('terminal', 'Terminal'))}>
                         Terminal
                     </Command.Item>
+                    <Command.Item onSelect={() => handleSelect(() => onOpenApp('projects', 'Projects'))}>
+                        Projects
+                    </Command.Item>
                     <Command.Item onSelect={() => handleSelect(() => onOpenApp('settings', 'Settings'))}>
                         Settings
                     </Command.Item>

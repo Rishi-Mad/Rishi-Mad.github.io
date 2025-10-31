@@ -2,7 +2,7 @@ import * as React from 'react';
 import StatusBar from './components/status-bar';
 import Dock from './components/dock';
 import RofiLauncherApp from './apps/rofi-launcher';
-import sunsetWallpaper from './assets/sunset.png';
+import minasTirithWallpaper from './assets/minas-tirith.png';
 import './styles/window-animations.css';
 
 type AppWindow = {
@@ -44,12 +44,26 @@ function App() {
     setShowRofiLauncher(false);
   }, []);
 
-  // Keyboard shortcut: Space + K
+  // Keyboard shortcuts: Cmd+K / Cmd+J (macOS) or Ctrl+K / Ctrl+J (Windows/Linux)
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.code === 'Space' && e.key === 'k') {
+      const isMac = /Mac|iPhone|iPad|iPod/.test(navigator.userAgent);
+      const modifierKey = isMac ? e.metaKey : e.ctrlKey;
+      const wrongModifier = isMac ? e.ctrlKey : e.metaKey;
+
+      // Cmd/Ctrl + K for Rofi Launcher
+      if (modifierKey && e.key === 'k' && !wrongModifier && !e.shiftKey && !e.altKey) {
         e.preventDefault();
         setShowRofiLauncher((prev) => !prev);
+      }
+
+      // Cmd/Ctrl + J for Terminal (allows multiple instances)
+      if (modifierKey && e.key === 'j' && !wrongModifier && !e.shiftKey && !e.altKey) {
+        e.preventDefault();
+        const event = new CustomEvent('openWindowFromApp', {
+          detail: { id: 'terminal', title: 'Terminal', allowMultiple: true },
+        });
+        window.dispatchEvent(event);
       }
     };
 
@@ -60,7 +74,7 @@ function App() {
   return (
     <div
       className="min-h-screen text-foreground bg-cover bg-center bg-no-repeat bg-fixed"
-      style={{ backgroundImage: `url(${sunsetWallpaper})` }}
+      style={{ backgroundImage: `url(${minasTirithWallpaper})` }}
     >
       <Dock
         onWindowsChange={handleWindowsChange}

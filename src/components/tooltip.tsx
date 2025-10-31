@@ -9,11 +9,23 @@ interface TooltipProps {
 }
 
 export default function Tooltip({ children, content, sideOffset = 10, side = 'top' }: TooltipProps) {
+    const [isOpen, setIsOpen] = React.useState(false);
+    const anchorRef = React.useRef<HTMLDivElement>(null);
+    
     return (
-        <BaseTooltip.Root>
-            <BaseTooltip.Trigger asChild>{children}</BaseTooltip.Trigger>
+        <BaseTooltip.Root open={isOpen} onOpenChange={setIsOpen}>
+            <div
+                ref={anchorRef}
+                className="inline-flex"
+                onMouseEnter={() => setIsOpen(true)}
+                onMouseLeave={() => setIsOpen(false)}
+                onFocus={() => setIsOpen(true)}
+                onBlur={() => setIsOpen(false)}
+            >
+                {children}
+            </div>
             <BaseTooltip.Portal>
-                <BaseTooltip.Positioner sideOffset={sideOffset} side={side}>
+                <BaseTooltip.Positioner sideOffset={sideOffset} side={side} anchor={anchorRef.current}>
                     <BaseTooltip.Popup
                         className="origin-[var(--transform-origin)] rounded-md px-3 py-1.5 text-sm font-mono shadow-lg transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[instant]:duration-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0"
                         style={{
