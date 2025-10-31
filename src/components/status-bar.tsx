@@ -53,8 +53,12 @@ export default function StatusBar({ windows, activeWindowId, minimizedWindowIds,
     const [currentTime, setCurrentTime] = React.useState(new Date());
     const [batteryState, setBatteryState] = React.useState(getBatteryState());
     const [showBatteryTooltip, setShowBatteryTooltip] = React.useState(false);
+    const [showWifiTooltip, setShowWifiTooltip] = React.useState(false);
+    const [showTimeTooltip, setShowTimeTooltip] = React.useState(false);
     const [tooltipPosition, setTooltipPosition] = React.useState({ x: 0, y: 0 });
     const batteryRef = React.useRef<HTMLDivElement>(null);
+    const wifiRef = React.useRef<HTMLDivElement>(null);
+    const timeRef = React.useRef<HTMLSpanElement>(null);
 
     React.useEffect(() => {
         const timer = setInterval(() => {
@@ -75,6 +79,28 @@ export default function StatusBar({ windows, activeWindowId, minimizedWindowIds,
             });
         }
         setShowBatteryTooltip(show);
+    };
+
+    const handleWifiHover = (show: boolean) => {
+        if (show && wifiRef.current) {
+            const rect = wifiRef.current.getBoundingClientRect();
+            setTooltipPosition({
+                x: rect.left + rect.width / 2,
+                y: rect.bottom + 8,
+            });
+        }
+        setShowWifiTooltip(show);
+    };
+
+    const handleTimeHover = (show: boolean) => {
+        if (show && timeRef.current) {
+            const rect = timeRef.current.getBoundingClientRect();
+            setTooltipPosition({
+                x: rect.left + rect.width / 2,
+                y: rect.bottom + 8,
+            });
+        }
+        setShowTimeTooltip(show);
     };
 
     const formatTime = (date: Date) => {
@@ -119,7 +145,14 @@ export default function StatusBar({ windows, activeWindowId, minimizedWindowIds,
 
             {/* Right side - System indicators and time */}
             <div className="flex items-center gap-2">
-                <Monicon name="mingcute:wifi-fill" size={14} color="#A7C080" />
+                <div
+                    ref={wifiRef}
+                    className="cursor-default"
+                    onMouseEnter={() => handleWifiHover(true)}
+                    onMouseLeave={() => handleWifiHover(false)}
+                >
+                    <Monicon name="mingcute:wifi-fill" size={14} color="#A7C080" />
+                </div>
                 <div
                     ref={batteryRef}
                     className="cursor-default flex items-center"
@@ -131,7 +164,12 @@ export default function StatusBar({ windows, activeWindowId, minimizedWindowIds,
                         <Monicon name="mingcute:lightning-fill" size={8} color="#E5C890" />
                     )}
                 </div>
-                <span className="text-xs font-sans">
+                <span
+                    ref={timeRef}
+                    className="text-xs font-sans cursor-default"
+                    onMouseEnter={() => handleTimeHover(true)}
+                    onMouseLeave={() => handleTimeHover(false)}
+                >
                     {formatDate(currentTime)} {formatTime(currentTime)}
                 </span>
             </div>
@@ -147,6 +185,44 @@ export default function StatusBar({ windows, activeWindowId, minimizedWindowIds,
                         }}
                     >
                         {batteryState.percentage}%
+                    </div>,
+                    document.body,
+                )}
+            {showWifiTooltip &&
+                createPortal(
+                    <div
+                        className="fixed px-2 py-1 bg-bg-2 text-foreground text-xs rounded whitespace-nowrap pointer-events-none border border-bg-4"
+                        style={{
+                            left: `${tooltipPosition.x}px`,
+                            top: `${tooltipPosition.y}px`,
+                            transform: 'translateX(-50%)',
+                            zIndex: 10000,
+                        }}
+                    >
+                        Status: Connected
+                    </div>,
+                    document.body,
+                )}
+            {showTimeTooltip &&
+                createPortal(
+                    <div
+                        className="fixed px-2 py-1 bg-bg-2 text-foreground text-xs rounded whitespace-nowrap pointer-events-none border border-bg-4"
+                        style={{
+                            left: `${tooltipPosition.x}px`,
+                            top: `${tooltipPosition.y}px`,
+                            transform: 'translateX(-50%)',
+                            zIndex: 10000,
+                        }}
+                    >
+                        {currentTime.toLocaleString('en-US', {
+                            timeZoneName: 'short',
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                        })}
                     </div>,
                     document.body,
                 )}
