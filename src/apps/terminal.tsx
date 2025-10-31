@@ -154,25 +154,25 @@ export default function TerminalApp() {
                         <div className="ml-6">{entry.output}</div>
                     </div>
                 ))}
+                
+                <form onSubmit={handleSubmit} className="pt-2">
+                    <div className="flex items-center gap-2">
+                        <span className="text-green">➜</span>
+                        <span className="text-blue">~</span>
+                        <input
+                            ref={inputRef}
+                            type="text"
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            className="flex-1 bg-transparent outline-none text-foreground"
+                            style={{ caretColor: 'var(--color-green)' }}
+                            autoFocus
+                            spellCheck={false}
+                        />
+                    </div>
+                </form>
                 <div ref={bottomRef} />
             </div>
-
-            <form onSubmit={handleSubmit} className="px-4 pb-4 pt-2 shrink-0">
-                <div className="flex items-center gap-2">
-                    <span className="text-green">➜</span>
-                    <span className="text-blue">~</span>
-                    <input
-                        ref={inputRef}
-                        type="text"
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        className="flex-1 bg-transparent outline-none text-foreground"
-                        style={{ caretColor: 'var(--color-green)' }}
-                        autoFocus
-                        spellCheck={false}
-                    />
-                </div>
-            </form>
         </div>
     );
 }

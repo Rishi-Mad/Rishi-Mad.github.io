@@ -1,8 +1,10 @@
 import * as React from 'react';
 import { Menubar } from '@base-ui-components/react/menubar';
 import { Menu } from '@base-ui-components/react/menu';
+import { Tooltip } from '@base-ui-components/react/tooltip';
 import Monicon from '@monicon/react';
 import Window from './window';
+import AppTooltip from './tooltip';
 import ProfileApp from '../apps/profile';
 import TerminalApp from '../apps/terminal';
 import SettingsApp from '../apps/settings';
@@ -72,78 +74,91 @@ export default function Dock({ onWindowsChange, onOpenCommandPalette }: DockProp
     }, []);
 
     React.useEffect(() => {
-        const handleFocusWindow = (event: CustomEvent) => {
-            const { id } = event.detail;
+        const handleFocusWindow = (event: Event) => {
+            const customEvent = event as CustomEvent<{ id: string }>;
+            const { id } = customEvent.detail;
             focusWindow(id);
         };
 
-        const handleWindowMaximized = (event: CustomEvent) => {
-            setHasMaximizedWindow(event.detail.isMaximized);
+        const handleWindowMaximized = (event: Event) => {
+            const customEvent = event as CustomEvent<{ isMaximized: boolean }>;
+            setHasMaximizedWindow(customEvent.detail.isMaximized);
         };
 
-        const handleOpenWindowFromApp = (event: CustomEvent) => {
-            const { id, title } = event.detail;
+        const handleOpenWindowFromApp = (event: Event) => {
+            const customEvent = event as CustomEvent<{ id: string; title: string }>;
+            const { id, title } = customEvent.detail;
             if (id === 'profile') openWindow(id, title, <ProfileApp />);
             else if (id === 'terminal') openWindow(id, title, <TerminalApp />);
             else if (id === 'settings') openWindow(id, title, <SettingsApp />);
         };
 
-        window.addEventListener('focusWindow' as any, handleFocusWindow);
-        window.addEventListener('windowMaximized' as any, handleWindowMaximized);
-        window.addEventListener('openWindowFromApp' as any, handleOpenWindowFromApp);
+        window.addEventListener('focusWindow', handleFocusWindow);
+        window.addEventListener('windowMaximized', handleWindowMaximized);
+        window.addEventListener('openWindowFromApp', handleOpenWindowFromApp);
         return () => {
-            window.removeEventListener('focusWindow' as any, handleFocusWindow);
-            window.removeEventListener('windowMaximized' as any, handleWindowMaximized);
-            window.removeEventListener('openWindowFromApp' as any, handleOpenWindowFromApp);
+            window.removeEventListener('focusWindow', handleFocusWindow);
+            window.removeEventListener('windowMaximized', handleWindowMaximized);
+            window.removeEventListener('openWindowFromApp', handleOpenWindowFromApp);
         };
-    }, []);
+    }, [focusWindow, openWindow]);
 
     return (
         <>
-            <Menubar
-                orientation="vertical"
-                className={`fixed left-4 top-1/2 -translate-y-1/2 flex flex-col items-center gap-1.5 rounded-2xl p-2 backdrop-blur-xl bg-gradient-to-br from-bg-1/40 via-bg-1/30 to-bg-1/20 border border-white/10 before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-br before:from-white/10 before:to-transparent before:opacity-50 before:-z-10 transition-opacity duration-300 ${
-                    hasMaximizedWindow ? 'opacity-0 pointer-events-none' : 'opacity-100'
-                }`}
-            >
-                <Menu.Root>
-                    <Menu.Trigger
-                        onClick={() => openWindow('profile', 'Profile', <ProfileApp />)}
-                        className="relative w-10 h-10 rounded-xl flex items-center justify-center hover:scale-110 transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-primary data-[popup-open]:scale-110 bg-gradient-to-br from-red to-orange shadow-md"
-                    >
-                        <Monicon name="mingcute:profile-fill" size={28} color="white" />
-                    </Menu.Trigger>
-                </Menu.Root>
+            <Tooltip.Provider delay={300} closeDelay={0}>
+                <Menubar
+                    orientation="vertical"
+                    className={`fixed left-4 top-1/2 -translate-y-1/2 flex flex-col items-center gap-1.5 rounded-2xl p-2 backdrop-blur-xl bg-gradient-to-br from-bg-1/40 via-bg-1/30 to-bg-1/20 border border-white/10 before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-br before:from-white/10 before:to-transparent before:opacity-50 before:-z-10 transition-opacity duration-300 ${
+                        hasMaximizedWindow ? 'opacity-0 pointer-events-none' : 'opacity-100'
+                    }`}
+                >
+                    <AppTooltip content="Profile" side="right">
+                        <Menu.Root>
+                            <Menu.Trigger
+                                onClick={() => openWindow('profile', 'Profile', <ProfileApp />)}
+                                className="relative w-10 h-10 rounded-xl flex items-center justify-center hover:scale-110 transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-primary data-[popup-open]:scale-110 bg-gradient-to-br from-red to-orange shadow-md"
+                            >
+                                <Monicon name="mingcute:profile-fill" size={28} color="white" />
+                            </Menu.Trigger>
+                        </Menu.Root>
+                    </AppTooltip>
 
-                <Menu.Root>
-                    <Menu.Trigger
-                        onClick={() => onOpenCommandPalette?.()}
-                        className="relative w-10 h-10 rounded-xl flex items-center justify-center hover:scale-110 transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-primary data-[popup-open]:scale-110 bg-gradient-to-br from-blue to-aqua shadow-md"
-                    >
-                        <Monicon name="mingcute:dot-grid-fill" size={28} color="white" />
-                    </Menu.Trigger>
-                </Menu.Root>
+                    <AppTooltip content="Apps" side="right">
+                        <Menu.Root>
+                            <Menu.Trigger
+                                onClick={() => onOpenCommandPalette?.()}
+                                className="relative w-10 h-10 rounded-xl flex items-center justify-center hover:scale-110 transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-primary data-[popup-open]:scale-110 bg-gradient-to-br from-blue to-aqua shadow-md"
+                            >
+                                <Monicon name="mingcute:dot-grid-fill" size={28} color="white" />
+                            </Menu.Trigger>
+                        </Menu.Root>
+                    </AppTooltip>
 
-                <Menu.Root>
-                    <Menu.Trigger
-                        onClick={() => openWindow('terminal', 'Terminal', <TerminalApp />)}
-                        className="relative w-10 h-10 rounded-xl flex items-center justify-center hover:scale-110 transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-primary data-[popup-open]:scale-110 bg-gradient-to-br from-green to-aqua shadow-md"
-                    >
-                        <Monicon name="mingcute:terminal-box-fill" size={28} color="white" />
-                    </Menu.Trigger>
-                </Menu.Root>
+                    <AppTooltip content="Terminal" side="right">
+                        <Menu.Root>
+                            <Menu.Trigger
+                                onClick={() => openWindow('terminal', 'Terminal', <TerminalApp />)}
+                                className="relative w-10 h-10 rounded-xl flex items-center justify-center hover:scale-110 transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-primary data-[popup-open]:scale-110 bg-gradient-to-br from-green to-aqua shadow-md"
+                            >
+                                <Monicon name="mingcute:terminal-box-fill" size={28} color="white" />
+                            </Menu.Trigger>
+                        </Menu.Root>
+                    </AppTooltip>
 
-                <div className="w-8 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-1" />
+                    <div className="w-8 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-1" />
 
-                <Menu.Root>
-                    <Menu.Trigger
-                        onClick={() => openWindow('settings', 'Settings', <SettingsApp />)}
-                        className="relative w-10 h-10 rounded-xl flex items-center justify-center hover:scale-110 transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-primary data-[popup-open]:scale-110 bg-gradient-to-br from-purple to-red shadow-md"
-                    >
-                        <Monicon name="mingcute:settings-3-fill" size={20} color="white" />
-                    </Menu.Trigger>
-                </Menu.Root>
-            </Menubar>
+                    <AppTooltip content="Settings" side="right">
+                        <Menu.Root>
+                            <Menu.Trigger
+                                onClick={() => openWindow('settings', 'Settings', <SettingsApp />)}
+                                className="relative w-10 h-10 rounded-xl flex items-center justify-center hover:scale-110 transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-primary data-[popup-open]:scale-110 bg-gradient-to-br from-purple to-red shadow-md"
+                            >
+                                <Monicon name="mingcute:settings-3-fill" size={20} color="white" />
+                            </Menu.Trigger>
+                        </Menu.Root>
+                    </AppTooltip>
+                </Menubar>
+            </Tooltip.Provider>
 
             {/* Render Open Windows */}
             {openWindows.map((window) => (
