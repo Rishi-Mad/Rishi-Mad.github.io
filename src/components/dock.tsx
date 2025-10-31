@@ -123,7 +123,7 @@ export default function Dock({ onWindowsChange, onOpenCommandPalette }: DockProp
                         </Menu.Root>
                     </AppTooltip>
 
-                    <AppTooltip content="Apps" side="right">
+                    <AppTooltip content="Rofi" side="right">
                         <Menu.Root>
                             <Menu.Trigger
                                 onClick={() => onOpenCommandPalette?.()}

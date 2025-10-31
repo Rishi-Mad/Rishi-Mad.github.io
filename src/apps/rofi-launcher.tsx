@@ -2,12 +2,12 @@ import * as React from 'react';
 import { Command } from 'cmdk';
 import '../styles/command-palette.css';
 
-interface CommandPaletteAppProps {
+interface RofiLauncherAppProps {
     onOpenApp: (id: string, title: string) => void;
     onClose: () => void;
 }
 
-export default function CommandPaletteApp({ onOpenApp, onClose }: CommandPaletteAppProps) {
+export default function RofiLauncherApp({ onOpenApp, onClose }: CommandPaletteAppProps) {
     const [open, setOpen] = React.useState(true);
 
     const handleOpenChange = (isOpen: boolean) => {
