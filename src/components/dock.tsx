@@ -134,8 +134,9 @@ export default function Dock({ onWindowsChange, onOpenRofiLauncher }: DockProps 
     return (
         <>
             <Tooltip.Provider delay={300} closeDelay={0}>
+                {/* Desktop Dock - Vertical on left */}
                 <div
-                    className={`fixed left-4 top-1/2 -translate-y-1/2 flex flex-col items-center gap-1.5 rounded-2xl p-2 backdrop-blur-xl bg-gradient-to-br from-bg-1/40 via-bg-1/30 to-bg-1/20 border border-white/10 before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-br before:from-white/10 before:to-transparent before:opacity-50 before:-z-10 transition-opacity duration-300 ${
+                    className={`hidden md:flex fixed left-4 top-1/2 -translate-y-1/2 flex-col items-center gap-1.5 rounded-2xl p-2 backdrop-blur-xl bg-gradient-to-br from-bg-1/40 via-bg-1/30 to-bg-1/20 border border-white/10 before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-br before:from-white/10 before:to-transparent before:opacity-50 before:-z-10 transition-opacity duration-300 ${
                         hasMaximizedWindow ? 'opacity-0 pointer-events-none' : 'opacity-100'
                     }`}
                 >
@@ -201,6 +202,37 @@ export default function Dock({ onWindowsChange, onOpenRofiLauncher }: DockProps 
                             <Monicon name="mingcute:settings-3-fill" size={28} color="white" />
                         </button>
                     </AppTooltip>
+                </div>
+
+                {/* Mobile Dock - Horizontal at bottom */}
+                <div className="flex md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 flex-row items-center gap-4 rounded-3xl px-5 py-3 backdrop-blur-xl bg-gradient-to-br from-bg-1/70 via-bg-1/60 to-bg-1/50 border border-white/10 shadow-2xl">
+                    <button
+                        onClick={() => openWindow('profile', 'Profile', <ProfileApp />)}
+                        className="relative w-14 h-14 rounded-2xl flex items-center justify-center active:scale-95 transition-all duration-200 outline-none bg-gradient-to-br from-red to-orange shadow-lg"
+                    >
+                        <Monicon name="mingcute:profile-fill" size={32} color="white" />
+                    </button>
+
+                    <button
+                        onClick={() => openWindow('terminal', 'Terminal', <TerminalApp />, true)}
+                        className="relative w-14 h-14 rounded-2xl flex items-center justify-center active:scale-95 transition-all duration-200 outline-none bg-gradient-to-br from-green to-aqua shadow-lg"
+                    >
+                        <Monicon name="mingcute:terminal-box-fill" size={32} color="white" />
+                    </button>
+
+                    <button
+                        onClick={() => openWindow('projects', 'Projects', <ProjectsApp />)}
+                        className="relative w-14 h-14 rounded-2xl flex items-center justify-center active:scale-95 transition-all duration-200 outline-none bg-gradient-to-br from-yellow to-orange shadow-lg"
+                    >
+                        <Monicon name="mingcute:album-2-fill" size={32} color="white" />
+                    </button>
+
+                    <button
+                        onClick={() => openWindow('settings', 'Settings', <SettingsApp />)}
+                        className="relative w-14 h-14 rounded-2xl flex items-center justify-center active:scale-95 transition-all duration-200 outline-none bg-gradient-to-br from-purple to-red shadow-lg"
+                    >
+                        <Monicon name="mingcute:settings-3-fill" size={24} color="white" />
+                    </button>
                 </div>
             </Tooltip.Provider>
 

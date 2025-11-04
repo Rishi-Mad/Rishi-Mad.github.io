@@ -19,23 +19,23 @@ const HALF_CYCLE_MS = FULL_CHARGE_CYCLE_MS / 2; // 26.25 minutes for charge or d
 const getBatteryState = () => {
     const now = Date.now();
     let startTime = localStorage.getItem('battery-start-time');
-    
+
     if (!startTime) {
         // First visit, initialize the battery cycle
         localStorage.setItem('battery-start-time', now.toString());
         startTime = now.toString();
     }
-    
+
     const elapsed = now - parseInt(startTime);
     const cyclePosition = elapsed % FULL_CHARGE_CYCLE_MS;
-    
+
     // First half: charging (0% -> 100%)
     // Second half: discharging (100% -> 0%)
     const isCharging = cyclePosition < HALF_CYCLE_MS;
     const percentage = isCharging
         ? Math.round((cyclePosition / HALF_CYCLE_MS) * 100)
         : Math.round(((FULL_CHARGE_CYCLE_MS - cyclePosition) / HALF_CYCLE_MS) * 100);
-    
+
     // Determine icon based on percentage
     let icon = 'mingcute:battery-1-line';
     if (percentage >= 95) {
@@ -49,7 +49,7 @@ const getBatteryState = () => {
     } else if (percentage >= 20) {
         icon = 'mingcute:battery-1-line';
     }
-    
+
     return {
         icon,
         percentage,
@@ -126,59 +126,82 @@ export default function StatusBar({ windows, activeWindowId, minimizedWindowIds,
     };
 
     return (
-        <div className="w-fit bg-bg-1 text-foreground h-7 rounded-md flex items-center px-3 gap-8">
-            {/* Left side - Window indicators */}
-            {windows.length > 0 && (
-                <div className="flex items-center gap-1.5">
-                    {windows.map((window, index) => {
-                        const isMinimized = minimizedWindowIds.has(window.id);
-                        const isActive = activeWindowId === window.id && !isMinimized;
-                        return (
-                            <button
-                                key={window.id}
-                                onClick={() => onWindowSelect(window.id)}
-                                className={`text-sm font-sans transition-all duration-300 ease-in-out hover:scale-110 cursor-pointer ${
-                                    isActive ? 'text-blue' : isMinimized ? 'text-gray-0 opacity-50' : 'text-gray-1'
-                                }`}
-                                title={`${window.title}${isMinimized ? ' (minimized)' : ''}`}
-                            >
-                                {japaneseNumbers[index] || index + 1}
-                            </button>
-                        );
-                    })}
-                </div>
-            )}
+        <>
+            {/* Desktop Status Bar */}
+            <div className="hidden md:flex w-fit bg-bg-1 text-foreground h-7 rounded-md items-center px-3 gap-8">
+                {/* Left side - Window indicators */}
+                {windows.length > 0 && (
+                    <div className="flex items-center gap-1.5">
+                        {windows.map((window, index) => {
+                            const isMinimized = minimizedWindowIds.has(window.id);
+                            const isActive = activeWindowId === window.id && !isMinimized;
+                            return (
+                                <button
+                                    key={window.id}
+                                    onClick={() => onWindowSelect(window.id)}
+                                    className={`text-sm font-sans transition-all duration-300 ease-in-out hover:scale-110 cursor-pointer ${isActive ? 'text-blue' : isMinimized ? 'text-gray-0 opacity-50' : 'text-gray-1'
+                                        }`}
+                                    title={`${window.title}${isMinimized ? ' (minimized)' : ''}`}
+                                >
+                                    {japaneseNumbers[index] || index + 1}
+                                </button>
+                            );
+                        })}
+                    </div>
+                )}
 
-            {/* Right side - System indicators and time */}
-            <div className="flex items-center gap-2">
-                <div
-                    ref={wifiRef}
-                    className="cursor-default"
-                    onMouseEnter={() => handleWifiHover(true)}
-                    onMouseLeave={() => handleWifiHover(false)}
-                >
-                    <Monicon name="mingcute:wifi-fill" size={14} color="#A7C080" />
+                {/* Right side - System indicators and time */}
+                <div className="flex items-center gap-2">
+                    <div
+                        ref={wifiRef}
+                        className="cursor-default"
+                        onMouseEnter={() => handleWifiHover(true)}
+                        onMouseLeave={() => handleWifiHover(false)}
+                    >
+                        <Monicon name="mingcute:wifi-fill" size={14} color="#A7C080" />
+                    </div>
+                    <div
+                        ref={batteryRef}
+                        className="cursor-default flex items-center"
+                        onMouseEnter={() => handleBatteryHover(true)}
+                        onMouseLeave={() => handleBatteryHover(false)}
+                    >
+                        <Monicon name={batteryState.icon} size={16} color="#D3C6AA" />
+                        {batteryState.isCharging && (
+                            <Monicon name="mingcute:lightning-fill" size={8} color="#E5C890" />
+                        )}
+                    </div>
+                    <span
+                        ref={timeRef}
+                        className="text-xs font-sans cursor-default"
+                        onMouseEnter={() => handleTimeHover(true)}
+                        onMouseLeave={() => handleTimeHover(false)}
+                    >
+                        {formatDate(currentTime)} {formatTime(currentTime)}
+                    </span>
                 </div>
-                <div
-                    ref={batteryRef}
-                    className="cursor-default flex items-center"
-                    onMouseEnter={() => handleBatteryHover(true)}
-                    onMouseLeave={() => handleBatteryHover(false)}
-                >
-                    <Monicon name={batteryState.icon} size={16} color="#D3C6AA" />
-                    {batteryState.isCharging && (
-                        <Monicon name="mingcute:lightning-fill" size={8} color="#E5C890" />
-                    )}
-                </div>
-                <span
-                    ref={timeRef}
-                    className="text-xs font-sans cursor-default"
-                    onMouseEnter={() => handleTimeHover(true)}
-                    onMouseLeave={() => handleTimeHover(false)}
-                >
-                    {formatDate(currentTime)} {formatTime(currentTime)}
-                </span>
             </div>
+
+            {/* Mobile Status Bar */}
+            <div className="flex md:hidden w-full bg-bg-1/80 backdrop-blur-md text-foreground h-10 items-center px-4 justify-between">
+                {/* Left side - Time */}
+                <span className="text-xs font-sans font-medium">
+                    {formatTime(currentTime)}
+                </span>
+
+                {/* Right side - System indicators */}
+                <div className="flex items-center gap-2">
+                    <Monicon name="mingcute:wifi-fill" size={16} color="#A7C080" />
+                    <div className="flex items-center">
+                        <Monicon name={batteryState.icon} size={18} color="#D3C6AA" />
+                        {batteryState.isCharging && (
+                            <Monicon name="mingcute:lightning-fill" size={10} color="#E5C890" />
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Tooltips */}
             {showBatteryTooltip &&
                 createPortal(
                     <div
@@ -232,6 +255,6 @@ export default function StatusBar({ windows, activeWindowId, minimizedWindowIds,
                     </div>,
                     document.body,
                 )}
-        </div>
+        </>
     );
 }

@@ -37,12 +37,24 @@ export default function Window({
     isMinimized = false,
     windowId,
 }: WindowProps) {
+    const [isMobile, setIsMobile] = React.useState(false);
+
+    // Detect mobile viewport
+    React.useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
     // Load saved state from localStorage or use defaults
     const loadWindowState = React.useCallback((): WindowState => {
         if (!windowId) {
             return { x: 32, y: 80, width: 800, height: 600, isMaximized: false };
         }
-        
+
         try {
             const saved = localStorage.getItem(`window-state-${windowId}`);
             if (saved) {
@@ -51,7 +63,7 @@ export default function Window({
         } catch (e) {
             console.error('Failed to load window state:', e);
         }
-        
+
         return { x: 32, y: 80, width: 800, height: 600, isMaximized: false };
     }, [windowId]);
 
@@ -74,7 +86,7 @@ export default function Window({
     // Save window state to localStorage
     const saveWindowState = React.useCallback(() => {
         if (!windowId) return;
-        
+
         try {
             const state: WindowState = {
                 x: position.x,
@@ -101,7 +113,7 @@ export default function Window({
         const timeoutId = setTimeout(() => {
             saveWindowState();
         }, 500);
-        
+
         return () => clearTimeout(timeoutId);
     }, [position, size, isMaximized, saveWindowState]);
 
@@ -119,9 +131,9 @@ export default function Window({
             // Maximize with margins (8px on all sides)
             const margin = 8;
             setPosition({ x: margin, y: margin });
-            setSize({ 
-                width: window.innerWidth - (margin * 2), 
-                height: window.innerHeight - (margin * 2) 
+            setSize({
+                width: window.innerWidth - (margin * 2),
+                height: window.innerHeight - (margin * 2)
             });
             setIsMaximized(true);
             // Notify dock to fade out
@@ -274,54 +286,67 @@ export default function Window({
             ref={windowRef}
             onClick={onFocus}
             data-maximized={isMaximized}
-            className={`fixed flex flex-col backdrop-blur-xl bg-gradient-to-br from-bg-1/95 via-bg-1/90 to-bg-1/85 shadow-[0_20px_60px_0_rgba(0,0,0,0.5)] rounded-2xl ${isActive ? 'border-2 border-blue z-40' : 'border border-white/10 z-30'} ${className}`}
-            style={{
-                left: `${position.x}px`,
-                top: `${position.y}px`,
-                width: `${size.width}px`,
-                height: `${size.height}px`,
-                willChange: 'transform',
-                transition: isMaximized
-                    ? 'all 300ms ease-in-out'
-                    : 'border-color 200ms, border-width 200ms, z-index 200ms',
-            }}
+            className={`fixed flex flex-col backdrop-blur-xl bg-gradient-to-br from-bg-1/95 via-bg-1/90 to-bg-1/85 shadow-[0_20px_60px_0_rgba(0,0,0,0.5)] md:rounded-2xl ${isActive ? 'border-2 border-blue z-40' : 'border border-white/10 z-30'} ${className}`}
+            style={
+                isMobile
+                    ? {
+                        left: 0,
+                        top: '40px',
+                        width: '100%',
+                        height: 'calc(100vh - 40px - 96px)',
+                        willChange: 'transform',
+                        transition: 'border-color 200ms, border-width 200ms, z-index 200ms',
+                    }
+                    : {
+                        left: `${position.x}px`,
+                        top: `${position.y}px`,
+                        width: `${size.width}px`,
+                        height: `${size.height}px`,
+                        willChange: 'transform',
+                        transition: isMaximized
+                            ? 'all 300ms ease-in-out'
+                            : 'border-color 200ms, border-width 200ms, z-index 200ms',
+                    }
+            }
         >
-            {/* Resize Handles - Edges (excluding top) */}
-            <div
-                className="absolute bottom-0 left-0 right-0 h-2 cursor-s-resize z-50"
-                onMouseDown={(e) => handleMouseDown(e, 'resize', 's')}
-            />
-            <div
-                className="absolute top-0 bottom-0 left-0 w-2 cursor-w-resize z-50"
-                onMouseDown={(e) => handleMouseDown(e, 'resize', 'w')}
-            />
-            <div
-                className="absolute top-0 bottom-0 right-0 w-2 cursor-e-resize z-50"
-                onMouseDown={(e) => handleMouseDown(e, 'resize', 'e')}
-            />
-
-            {/* Resize Handles - Corners */}
-            <div
-                className="absolute bottom-0 left-0 w-4 h-4 cursor-sw-resize z-50"
-                onMouseDown={(e) => handleMouseDown(e, 'resize', 'sw')}
-            />
-            <div
-                className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-50"
-                onMouseDown={(e) => handleMouseDown(e, 'resize', 'se')}
-            />
-            <div
-                className="absolute top-0 left-0 w-4 h-4 cursor-nw-resize z-50"
-                onMouseDown={(e) => handleMouseDown(e, 'resize', 'nw')}
-            />
-            <div
-                className="absolute top-0 right-0 w-4 h-4 cursor-ne-resize z-50"
-                onMouseDown={(e) => handleMouseDown(e, 'resize', 'ne')}
-            />
+            {/* Resize Handles - Only on desktop */}
+            {!isMobile && (
+                <>
+                    <div
+                        className="absolute bottom-0 left-0 right-0 h-2 cursor-s-resize z-50"
+                        onMouseDown={(e) => handleMouseDown(e, 'resize', 's')}
+                    />
+                    <div
+                        className="absolute top-0 bottom-0 left-0 w-2 cursor-w-resize z-50"
+                        onMouseDown={(e) => handleMouseDown(e, 'resize', 'w')}
+                    />
+                    <div
+                        className="absolute top-0 bottom-0 right-0 w-2 cursor-e-resize z-50"
+                        onMouseDown={(e) => handleMouseDown(e, 'resize', 'e')}
+                    />
+                    <div
+                        className="absolute bottom-0 left-0 w-4 h-4 cursor-sw-resize z-50"
+                        onMouseDown={(e) => handleMouseDown(e, 'resize', 'sw')}
+                    />
+                    <div
+                        className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-50"
+                        onMouseDown={(e) => handleMouseDown(e, 'resize', 'se')}
+                    />
+                    <div
+                        className="absolute top-0 left-0 w-4 h-4 cursor-nw-resize z-50"
+                        onMouseDown={(e) => handleMouseDown(e, 'resize', 'nw')}
+                    />
+                    <div
+                        className="absolute top-0 right-0 w-4 h-4 cursor-ne-resize z-50"
+                        onMouseDown={(e) => handleMouseDown(e, 'resize', 'ne')}
+                    />
+                </>
+            )}
 
             {/* Window Header */}
             <div
-                className="flex items-center justify-between px-4 py-2 border-b border-white/10 cursor-move"
-                onMouseDown={(e) => handleMouseDown(e, 'drag')}
+                className={`flex items-center justify-between px-4 py-2 border-b border-white/10 ${!isMobile ? 'cursor-move' : ''}`}
+                onMouseDown={(e) => !isMobile && handleMouseDown(e, 'drag')}
             >
                 <div className="flex items-center gap-2">
                     <button

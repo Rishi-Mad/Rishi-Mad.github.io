@@ -81,7 +81,7 @@ function App() {
         onOpenRofiLauncher={handleOpenRofiLauncher}
       />
 
-      <header className="fixed top-0 left-0 right-0 z-20 p-4 flex justify-center transition-all duration-300 status-bar-header">
+      <header className="fixed top-0 left-0 right-0 z-20 md:p-4 flex justify-center transition-all duration-300 status-bar-header">
         <StatusBar
           windows={windows}
           activeWindowId={activeWindowId}
