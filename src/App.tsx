@@ -3,6 +3,12 @@ import StatusBar from './components/status-bar';
 import Dock from './components/dock';
 import RofiLauncherApp from './apps/rofi-launcher';
 import minasTirithWallpaper from './assets/minas-tirith.png';
+import sunsetWallpaper from './assets/sunset.png';
+import solarPulseWallpaper from './assets/solar-pulse.jpg';
+import uagamiCherryBlossomsWallpaper from './assets/uagami-cherry-blossoms.jpg';
+import animatedBlossomWallpaper from './assets/animated_blossom.gif';
+import animatedSkyWallpaper from './assets/animated_sky.gif';
+import deloreanNightSkyWallpaper from './assets/delorean_night_sky.gif';
 import './styles/window-animations.css';
 
 type AppWindow = {
@@ -11,11 +17,25 @@ type AppWindow = {
   content: React.ReactNode;
 };
 
+const wallpaperMap: Record<string, string> = {
+  'minas-tirith': minasTirithWallpaper,
+  'sunset': sunsetWallpaper,
+  'solar-pulse': solarPulseWallpaper,
+  'uagami-cherry-blossoms': uagamiCherryBlossomsWallpaper,
+  'animated-blossom': animatedBlossomWallpaper,
+  'animated-sky': animatedSkyWallpaper,
+  'delorean-night-sky': deloreanNightSkyWallpaper,
+};
+
 function App() {
   const [windows, setWindows] = React.useState<AppWindow[]>([]);
   const [activeWindowId, setActiveWindowId] = React.useState<string | null>(null);
   const [minimizedWindowIds, setMinimizedWindowIds] = React.useState<Set<string>>(new Set());
   const [showRofiLauncher, setShowRofiLauncher] = React.useState(false);
+  const [currentWallpaper, setCurrentWallpaper] = React.useState<string>(() => {
+    const saved = localStorage.getItem('wallpaper');
+    return wallpaperMap[saved || 'minas-tirith'] || minasTirithWallpaper;
+  });
 
   const handleWindowsChange = React.useCallback(
     (newWindows: AppWindow[], newActiveId: string | null, minimizedIds: Set<string>) => {
@@ -42,6 +62,25 @@ function App() {
     const event = new CustomEvent('openWindowFromApp', { detail: { id, title } });
     window.dispatchEvent(event);
     setShowRofiLauncher(false);
+  }, []);
+
+  // Listen for wallpaper changes
+  React.useEffect(() => {
+    const handleWallpaperChange = (event: Event) => {
+      const customEvent = event as CustomEvent<{ wallpaperId: string }>;
+      const { wallpaperId } = customEvent.detail;
+      console.log('Received wallpaper change event:', wallpaperId);
+      const newWallpaper = wallpaperMap[wallpaperId];
+      console.log('New wallpaper URL:', newWallpaper);
+      if (newWallpaper) {
+        setCurrentWallpaper(newWallpaper);
+      } else {
+        console.error('Wallpaper not found in map:', wallpaperId);
+      }
+    };
+
+    window.addEventListener('wallpaperChange', handleWallpaperChange);
+    return () => window.removeEventListener('wallpaperChange', handleWallpaperChange);
   }, []);
 
   // Keyboard shortcuts: Cmd+K / Cmd+J (macOS) or Ctrl+K / Ctrl+J (Windows/Linux)
@@ -73,8 +112,8 @@ function App() {
 
   return (
     <div
-      className="min-h-screen text-foreground bg-cover bg-center bg-no-repeat bg-fixed"
-      style={{ backgroundImage: `url(${minasTirithWallpaper})` }}
+      className="min-h-screen text-foreground bg-cover bg-center bg-no-repeat transition-all duration-500"
+      style={{ backgroundImage: `url(${currentWallpaper})` }}
     >
       <Dock
         onWindowsChange={handleWindowsChange}
