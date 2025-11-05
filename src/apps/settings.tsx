@@ -5,7 +5,7 @@ import Monicon from '@monicon/react';
 import minasTirithWallpaper from '../assets/minas-tirith.png';
 import sunsetWallpaper from '../assets/sunset.png';
 import uagamiCherryBlossomsWallpaper from '../assets/uagami-cherry-blossoms.jpg';
-import animatedBlossomWallpaper from '../assets/animated_blossom.gif';
+import loneManWallpaper from '../assets/lone_man.gif';
 import animatedSkyWallpaper from '../assets/animated_sky.gif';
 import deloreanNightSkyWallpaper from '../assets/delorean_night_sky.gif';
 
@@ -22,7 +22,7 @@ const wallpapers: Wallpaper[] = [
     { id: 'sunset', name: 'Sunset', url: sunsetWallpaper, category: 'still' },
     { id: 'uagami-cherry-blossoms', name: 'Cherry Blossoms', url: uagamiCherryBlossomsWallpaper, category: 'still' },
     // Animated wallpapers
-    { id: 'animated-blossom', name: 'Animated Blossom', url: animatedBlossomWallpaper, category: 'animated' },
+    { id: 'lone-man', name: 'Lone Man', url: loneManWallpaper, category: 'animated' },
     { id: 'animated-sky', name: 'Animated Sky', url: animatedSkyWallpaper, category: 'animated' },
     { id: 'delorean-night-sky', name: 'DeLorean Night', url: deloreanNightSkyWallpaper, category: 'animated' },
 ];

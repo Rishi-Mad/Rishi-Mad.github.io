@@ -345,17 +345,20 @@ export default function Window({
 
             {/* Window Header */}
             <div
-                className={`flex items-center justify-between px-4 py-2 border-b border-white/10 ${!isMobile ? 'cursor-move' : ''}`}
+                className={`flex items-center justify-between px-4 py-3 border-b border-white/10 ${!isMobile ? 'cursor-move' : ''}`}
                 onMouseDown={(e) => !isMobile && handleMouseDown(e, 'drag')}
             >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
                     <button
-                        onClick={onClose}
-                        className="w-3 h-3 rounded-full bg-bg-3 hover:bg-red transition-colors flex items-center justify-center group"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onClose();
+                        }}
+                        className="w-3.5 h-3.5 rounded-full bg-red/80 hover:bg-red transition-all flex items-center justify-center group relative z-50"
                         aria-label="Close"
                     >
-                        <span className="text-gray-2 group-hover:text-white transition-colors">
-                            <Monicon name="mingcute:close-fill" size={8} />
+                        <span className="opacity-0 group-hover:opacity-100 text-white transition-opacity">
+                            <Monicon name="mingcute:close-fill" size={10} />
                         </span>
                     </button>
                     {onMinimize && (
@@ -364,11 +367,11 @@ export default function Window({
                                 e.stopPropagation();
                                 handleMinimize();
                             }}
-                            className="w-3 h-3 rounded-full bg-bg-3 hover:bg-yellow transition-colors flex items-center justify-center group"
+                            className="w-3.5 h-3.5 rounded-full bg-yellow/80 hover:bg-yellow transition-all flex items-center justify-center group relative z-50"
                             aria-label="Minimize"
                         >
-                            <span className="text-gray-2 group-hover:text-white transition-colors">
-                                <Monicon name="mingcute:minimize-fill" size={8} />
+                            <span className="opacity-0 group-hover:opacity-100 text-white transition-opacity">
+                                <Monicon name="mingcute:minimize-fill" size={10} />
                             </span>
                         </button>
                     )}
@@ -378,11 +381,11 @@ export default function Window({
                                 e.stopPropagation();
                                 handleMaximize();
                             }}
-                            className="w-3 h-3 rounded-full bg-bg-3 hover:bg-green transition-colors flex items-center justify-center group"
+                            className="w-3.5 h-3.5 rounded-full bg-green/80 hover:bg-green transition-all flex items-center justify-center group relative z-50"
                             aria-label="Maximize"
                         >
-                            <span className="text-gray-2 group-hover:text-white transition-colors text-[8px]">
-                                {isMaximized ? <AspectRatioMinimize /> : <Monicon name="mingcute:aspect-ratio-fill" size={8} />}
+                            <span className="opacity-0 group-hover:opacity-100 text-white transition-opacity">
+                                {isMaximized ? <AspectRatioMinimize /> : <Monicon name="mingcute:aspect-ratio-fill" size={10} />}
                             </span>
                         </button>
                     )}

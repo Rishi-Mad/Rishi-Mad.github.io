@@ -5,7 +5,7 @@ import RofiLauncherApp from './apps/rofi-launcher';
 import minasTirithWallpaper from './assets/minas-tirith.png';
 import sunsetWallpaper from './assets/sunset.png';
 import uagamiCherryBlossomsWallpaper from './assets/uagami-cherry-blossoms.jpg';
-import animatedBlossomWallpaper from './assets/animated_blossom.gif';
+import loneManWallpaper from './assets/lone_man.gif';
 import animatedSkyWallpaper from './assets/animated_sky.gif';
 import deloreanNightSkyWallpaper from './assets/delorean_night_sky.gif';
 import './styles/window-animations.css';
@@ -20,7 +20,7 @@ const wallpaperMap: Record<string, string> = {
   'minas-tirith': minasTirithWallpaper,
   'sunset': sunsetWallpaper,
   'uagami-cherry-blossoms': uagamiCherryBlossomsWallpaper,
-  'animated-blossom': animatedBlossomWallpaper,
+  'lone-man': loneManWallpaper,
   'animated-sky': animatedSkyWallpaper,
   'delorean-night-sky': deloreanNightSkyWallpaper,
 };
