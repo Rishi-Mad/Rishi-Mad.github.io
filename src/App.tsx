@@ -4,7 +4,6 @@ import Dock from './components/dock';
 import RofiLauncherApp from './apps/rofi-launcher';
 import minasTirithWallpaper from './assets/minas-tirith.png';
 import sunsetWallpaper from './assets/sunset.png';
-import solarPulseWallpaper from './assets/solar-pulse.jpg';
 import uagamiCherryBlossomsWallpaper from './assets/uagami-cherry-blossoms.jpg';
 import animatedBlossomWallpaper from './assets/animated_blossom.gif';
 import animatedSkyWallpaper from './assets/animated_sky.gif';
@@ -20,7 +19,6 @@ type AppWindow = {
 const wallpaperMap: Record<string, string> = {
   'minas-tirith': minasTirithWallpaper,
   'sunset': sunsetWallpaper,
-  'solar-pulse': solarPulseWallpaper,
   'uagami-cherry-blossoms': uagamiCherryBlossomsWallpaper,
   'animated-blossom': animatedBlossomWallpaper,
   'animated-sky': animatedSkyWallpaper,
