@@ -9,29 +9,34 @@ type HistoryEntry = {
 const COMMANDS = {
     whoami: () => (
         <div className="space-y-1">
-            <p className="text-foreground">Guest User</p>
-            <p className="text-gray-1 text-sm">Role: Visitor</p>
+            <p className="text-foreground">Rishi Madipalli</p>
+            <p className="text-gray-1 text-sm">Computer Engineering Student @ Purdue</p>
+            <p className="text-gray-1 text-sm">Hardware enthusiast | Software builder | Coffee consumer</p>
         </div>
     ),
     fetch: () => (
         <div className="space-y-2">
-            <div className="flex gap-8">
+            <div className="flex gap-6">
                 <div className="text-aqua font-bold">
-                    <pre className="text-xs leading-tight">{`
-    ___
-   /   \\
-  |  o  |
-   \\___/
-    | |
-   /   \\
+                    <pre className="text-[10px] leading-tight">{`
+ ██████╗ ██╗███████╗██╗  ██╗██╗
+ ██╔══██╗██║██╔════╝██║  ██║██║
+ ██████╔╝██║███████╗███████║██║
+ ██╔══██╗██║╚════██║██╔══██║██║
+ ██║  ██║██║███████║██║  ██║██║
+ ╚═╝  ╚═╝╚═╝╚══════╝╚═╝  ╚═╝╚═╝
                     `.trim()}</pre>
                 </div>
-                <div className="space-y-1 text-sm">
-                    <p><span className="text-blue">OS:</span> <span className="text-foreground">Web Portfolio</span></p>
-                    <p><span className="text-blue">Shell:</span> <span className="text-foreground">terminal.tsx</span></p>
-                    <p><span className="text-blue">Theme:</span> <span className="text-foreground">Everforest Dark</span></p>
-                    <p><span className="text-blue">Font:</span> <span className="text-foreground">Hack Nerd Font</span></p>
-                    <p><span className="text-blue">Framework:</span> <span className="text-foreground">React + Vite</span></p>
+                <div className="space-y-1 text-sm flex-1">
+                    <p><span className="text-yellow">Name:</span> <span className="text-foreground">Rishi Madipalli</span></p>
+                    <p><span className="text-yellow">Status:</span> <span className="text-green">Building cool stuff 🚀</span></p>
+                    <p><span className="text-yellow">Location:</span> <span className="text-foreground">Purdue University</span></p>
+                    <p><span className="text-yellow">Major:</span> <span className="text-foreground">Computer Engineering</span></p>
+                    <p><span className="text-yellow">Interests:</span> <span className="text-foreground">Hardware + Software</span></p>
+                    <p><span className="text-yellow">Coffee:</span> <span className="text-orange">☕ Infinite loop detected</span></p>
+                    <p><span className="text-yellow">Sleep:</span> <span className="text-red">404 Not Found</span></p>
+                    <p><span className="text-yellow">Bugs Fixed:</span> <span className="text-aqua">∞ (and counting...)</span></p>
+                    <p><span className="text-yellow">Easter Egg:</span> <span className="text-purple">You found me! 🎉</span></p>
                 </div>
             </div>
         </div>
@@ -46,21 +51,22 @@ const COMMANDS = {
     ),
     skills: () => (
         <div className="space-y-2">
-            <p className="text-yellow font-semibold">Technical Skills:</p>
-            <div className="grid grid-cols-2 gap-2 text-sm">
+            <p className="text-yellow font-semibold">Technical Arsenal:</p>
+            <div className="grid grid-cols-2 gap-3 text-sm">
                 <div>
-                    <p className="text-green">Frontend:</p>
-                    <p className="text-foreground ml-4">• React / TypeScript</p>
-                    <p className="text-foreground ml-4">• Tailwind CSS</p>
-                    <p className="text-foreground ml-4">• Vite</p>
+                    <p className="text-orange">Software:</p>
+                    <p className="text-foreground ml-4">• Python, C/C++, TypeScript</p>
+                    <p className="text-foreground ml-4">• React, Flask, Vite</p>
+                    <p className="text-foreground ml-4">• Machine Learning & AI</p>
                 </div>
                 <div>
-                    <p className="text-blue">Tools:</p>
-                    <p className="text-foreground ml-4">• Git / GitHub</p>
-                    <p className="text-foreground ml-4">• VS Code</p>
-                    <p className="text-foreground ml-4">• Terminal</p>
+                    <p className="text-aqua">Hardware:</p>
+                    <p className="text-foreground ml-4">• ASIC Design</p>
+                    <p className="text-foreground ml-4">• Embedded Systems</p>
+                    <p className="text-foreground ml-4">• Arduino, PCB Design</p>
                 </div>
             </div>
+            <p className="text-gray-1 text-xs italic mt-2">💡 Fun fact: I debug hardware with software and software with hardware</p>
         </div>
     ),
     help: () => (
