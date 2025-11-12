@@ -37,13 +37,10 @@ export default function SettingsApp() {
     const filteredWallpapers = wallpapers.filter(w => w.category === selectedCategory);
 
     const handleWallpaperChange = (wallpaperId: string) => {
-        console.log('Changing wallpaper to:', wallpaperId);
         setCurrentWallpaper(wallpaperId);
         localStorage.setItem('wallpaper', wallpaperId);
         // Dispatch event to notify App.tsx
-        const event = new CustomEvent('wallpaperChange', { detail: { wallpaperId } });
-        window.dispatchEvent(event);
-        console.log('Wallpaper change event dispatched');
+        window.dispatchEvent(new CustomEvent('wallpaperChange', { detail: { wallpaperId } }));
     };
 
     const toggleSection = (sectionId: string) => {
@@ -119,6 +116,7 @@ export default function SettingsApp() {
                                 src={wallpaper.url}
                                 alt={wallpaper.name}
                                 className="w-full h-full object-cover"
+                                loading="lazy"
                             />
                             {currentWallpaper === wallpaper.id && (
                                 <div className="absolute top-2 right-2 w-6 h-6 bg-blue rounded-full flex items-center justify-center">
