@@ -2,7 +2,7 @@ import Card from '../components/card';
 
 export default function ProfileApp() {
     return (
-        <div className="flex flex-col gap-6 h-full pb-12">
+        <div className="flex flex-col gap-6 h-full overflow-y-auto overflow-x-hidden pb-12" style={{ scrollBehavior: 'smooth' }}>
             <h1 className="text-3xl font-bold text-foreground">About Me</h1>
 
             {/* Introduction */}

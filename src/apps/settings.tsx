@@ -33,6 +33,7 @@ export default function SettingsApp() {
         return localStorage.getItem('wallpaper') || 'minas-tirith';
     });
     const [expandedSections, setExpandedSections] = React.useState<Set<string>>(new Set(['wallpaper']));
+    const containerRef = React.useRef<HTMLDivElement>(null);
 
     const filteredWallpapers = wallpapers.filter(w => w.category === selectedCategory);
 
@@ -56,7 +57,7 @@ export default function SettingsApp() {
     };
 
     return (
-        <div className="flex flex-col gap-6 h-full">
+        <div ref={containerRef} className="flex flex-col gap-6 h-full overflow-y-auto overflow-x-hidden" style={{ scrollBehavior: 'smooth' }}>
             <h1 className="text-3xl font-bold text-foreground">Settings</h1>
 
             {/* Wallpaper Section */}
@@ -101,7 +102,7 @@ export default function SettingsApp() {
                 </div>
 
                 {/* Wallpaper Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
                     {filteredWallpapers.map((wallpaper) => (
                         <button
                             key={wallpaper.id}

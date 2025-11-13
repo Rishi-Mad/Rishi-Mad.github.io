@@ -159,8 +159,11 @@ export default function Window({
         e.stopPropagation();
 
         if (windowRef.current) {
-            // Disable transitions during drag/resize for instant feedback
+            // Disable transitions and expensive effects during drag/resize
             windowRef.current.style.transition = 'none';
+            windowRef.current.style.willChange = 'transform';
+            // Temporarily disable backdrop blur for better performance
+            windowRef.current.style.backdropFilter = 'none';
         }
 
         if (type === 'drag') {
@@ -183,22 +186,13 @@ export default function Window({
         const handleMouseMove = (e: MouseEvent) => {
             if (isDraggingRef.current && windowRef.current && !isMaximized) {
                 // Calculate new position directly from mouse position
-                let newX = e.clientX - dragOffsetRef.current.x;
-                let newY = e.clientY - dragOffsetRef.current.y;
+                const newX = e.clientX - dragOffsetRef.current.x;
+                const newY = e.clientY - dragOffsetRef.current.y;
 
-                // Constrain to viewport boundaries (only when not maximized)
-                // Status bar is approximately 60px from top (16px padding + 28px height + 16px padding)
-                const minY = 60;
-                const minX = 0;
-                const maxX = window.innerWidth - 100; // Keep at least 100px visible
-                const maxY = window.innerHeight - 50; // Keep at least 50px visible
-
-                newX = Math.max(minX, Math.min(newX, maxX));
-                newY = Math.max(minY, Math.min(newY, maxY));
-
-                // Apply directly to DOM synchronously for instant feedback
-                windowRef.current.style.left = `${newX}px`;
-                windowRef.current.style.top = `${newY}px`;
+                // Apply directly to DOM with transform for better performance
+                windowRef.current.style.transform = `translate(${newX}px, ${newY}px)`;
+                windowRef.current.style.left = '0';
+                windowRef.current.style.top = '0';
             } else if (isResizingRef.current && windowRef.current) {
                 const deltaX = e.clientX - dragStartPosRef.current.x;
                 const deltaY = e.clientY - dragStartPosRef.current.y;
@@ -208,8 +202,12 @@ export default function Window({
                 let newX = initialPositionRef.current.x;
                 let newY = initialPositionRef.current.y;
 
+                // Constrain resize to viewport
+                const maxWidth = window.innerWidth - newX - 20;
+                const maxHeight = window.innerHeight - newY - 20;
+
                 if (resizeDirectionRef.current.includes('e')) {
-                    newWidth = Math.max(400, initialSizeRef.current.width + deltaX);
+                    newWidth = Math.max(400, Math.min(maxWidth, initialSizeRef.current.width + deltaX));
                 }
                 if (resizeDirectionRef.current.includes('w')) {
                     const widthDelta = Math.min(deltaX, initialSizeRef.current.width - 400);
@@ -217,7 +215,7 @@ export default function Window({
                     newX = initialPositionRef.current.x + widthDelta;
                 }
                 if (resizeDirectionRef.current.includes('s')) {
-                    newHeight = Math.max(300, initialSizeRef.current.height + deltaY);
+                    newHeight = Math.max(300, Math.min(maxHeight, initialSizeRef.current.height + deltaY));
                 }
                 if (resizeDirectionRef.current.includes('n')) {
                     const heightDelta = Math.min(deltaY, initialSizeRef.current.height - 300);
@@ -234,28 +232,33 @@ export default function Window({
 
         const handleMouseUp = (e: MouseEvent) => {
             if (isDraggingRef.current && windowRef.current) {
-                // Re-enable transitions
-                windowRef.current.style.transition = '';
-
-                // Commit the final position to state with constraints (only when not maximized)
+                // Calculate final position
                 let newX = e.clientX - dragOffsetRef.current.x;
                 let newY = e.clientY - dragOffsetRef.current.y;
 
-                if (!isMaximized) {
-                    // Apply same constraints as during drag
-                    const minY = 60;
-                    const minX = 0;
-                    const maxX = window.innerWidth - 100;
-                    const maxY = window.innerHeight - 50;
+                // Apply constraints
+                const rect = windowRef.current.getBoundingClientRect();
+                const windowWidth = rect.width;
+                const minY = 60; // Below status bar
+                const minX = -windowWidth + 200; // Keep 200px visible on left
+                const maxX = window.innerWidth - 200; // Keep 200px visible on right
+                const maxY = window.innerHeight - 100; // Keep 100px visible at bottom
 
-                    newX = Math.max(minX, Math.min(newX, maxX));
-                    newY = Math.max(minY, Math.min(newY, maxY));
-                }
+                newX = Math.max(minX, Math.min(newX, maxX));
+                newY = Math.max(minY, Math.min(newY, maxY));
 
+                // Clear transform and re-enable effects
+                windowRef.current.style.transform = '';
+                windowRef.current.style.transition = '';
+                windowRef.current.style.backdropFilter = '';
+                windowRef.current.style.willChange = '';
+                
                 setPosition({ x: newX, y: newY });
             } else if (isResizingRef.current && windowRef.current) {
-                // Re-enable transitions
+                // Re-enable transitions and effects
                 windowRef.current.style.transition = '';
+                windowRef.current.style.backdropFilter = '';
+                windowRef.current.style.willChange = '';
 
                 // Commit the final size and position to state
                 const rect = windowRef.current.getBoundingClientRect();
@@ -268,14 +271,14 @@ export default function Window({
             resizeDirectionRef.current = '';
         };
 
-        document.addEventListener('mousemove', handleMouseMove, { passive: true });
+        document.addEventListener('mousemove', handleMouseMove);
         document.addEventListener('mouseup', handleMouseUp);
 
         return () => {
             document.removeEventListener('mousemove', handleMouseMove);
             document.removeEventListener('mouseup', handleMouseUp);
         };
-    }, [position, size]);
+    }, [position, size, isMaximized]);
 
     if (isMinimized) {
         return null;
