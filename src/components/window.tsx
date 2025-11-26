@@ -400,10 +400,13 @@ export default function Window({
             {/* Window Content with ScrollArea */}
             <ScrollArea.Root className="flex-1 flex flex-col min-h-0">
                 <ScrollArea.Viewport className="flex-1 overscroll-contain relative">
-                    <div className="absolute inset-0 p-6 flex flex-col">{children}</div>
+                    <div className="absolute inset-0 px-6 pb-6 flex flex-col">{children}</div>
                 </ScrollArea.Viewport>
-                <ScrollArea.Scrollbar className="m-2 flex w-1 justify-center rounded bg-white/10 opacity-0 transition-opacity delay-300 pointer-events-none data-[hovering]:opacity-100 data-[hovering]:delay-0 data-[hovering]:duration-75 data-[hovering]:pointer-events-auto data-[scrolling]:opacity-100 data-[scrolling]:delay-0 data-[scrolling]:duration-75 data-[scrolling]:pointer-events-auto">
-                    <ScrollArea.Thumb className="w-full rounded bg-foreground/50" />
+                <ScrollArea.Scrollbar 
+                    orientation="vertical"
+                    className="absolute right-0 top-0 bottom-0 flex w-1.5 justify-center bg-transparent opacity-0 transition-opacity delay-300 pointer-events-none data-[hovering]:opacity-100 data-[hovering]:delay-0 data-[hovering]:duration-75 data-[hovering]:pointer-events-auto data-[scrolling]:opacity-100 data-[scrolling]:delay-0 data-[scrolling]:duration-75 data-[scrolling]:pointer-events-auto"
+                >
+                    <ScrollArea.Thumb className="w-1 rounded bg-foreground/50" />
                 </ScrollArea.Scrollbar>
             </ScrollArea.Root>
         </div>

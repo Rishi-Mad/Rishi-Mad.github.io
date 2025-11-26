@@ -3,7 +3,7 @@ import Card from '../components/card';
 export default function ProjectsApp() {
     return (
         <div className="flex flex-col gap-6 h-full overflow-y-auto overflow-x-hidden pb-12" style={{ scrollBehavior: 'smooth' }}>
-            <h1 className="text-3xl font-bold text-foreground">Projects</h1>
+            <h1 className="text-3xl font-bold text-foreground pt-6">Projects</h1>
 
             {/* Software Engineering Section */}
             <section className="flex flex-col gap-4">

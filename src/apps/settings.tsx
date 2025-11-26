@@ -58,7 +58,7 @@ export default function SettingsApp() {
 
     return (
         <div ref={containerRef} className="flex flex-col gap-6 h-full overflow-y-auto overflow-x-hidden" style={{ scrollBehavior: 'smooth' }}>
-            <h1 className="text-3xl font-bold text-foreground">Settings</h1>
+            <h1 className="text-3xl font-bold text-foreground pt-6">Settings</h1>
 
             {/* Wallpaper Section */}
             <section className="flex flex-col gap-4">
