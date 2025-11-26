@@ -5,7 +5,7 @@ import monicon from '@monicon/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/portfolio/',
+  base: '/Rishi-Mad.github.io/',
   plugins: [react(), tailwindcss(), monicon({
     collections: ["mingcute", "octicon"]
   })],
