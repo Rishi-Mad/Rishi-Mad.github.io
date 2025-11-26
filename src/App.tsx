@@ -67,13 +67,9 @@ function App() {
     const handleWallpaperChange = (event: Event) => {
       const customEvent = event as CustomEvent<{ wallpaperId: string }>;
       const { wallpaperId } = customEvent.detail;
-      console.log('Received wallpaper change event:', wallpaperId);
       const newWallpaper = wallpaperMap[wallpaperId];
-      console.log('New wallpaper URL:', newWallpaper);
       if (newWallpaper) {
         setCurrentWallpaper(newWallpaper);
-      } else {
-        console.error('Wallpaper not found in map:', wallpaperId);
       }
     };
 
@@ -110,8 +106,11 @@ function App() {
 
   return (
     <div
-      className="min-h-screen text-foreground bg-cover bg-center bg-no-repeat transition-all duration-500"
-      style={{ backgroundImage: `url(${currentWallpaper})` }}
+      className="min-h-screen text-foreground bg-cover bg-center bg-no-repeat"
+      style={{ 
+        backgroundImage: `url(${currentWallpaper})`,
+        transition: 'background-image 0.3s ease-in-out'
+      }}
     >
       <Dock
         onWindowsChange={handleWindowsChange}
